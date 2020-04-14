@@ -78,6 +78,7 @@ class Server {
         void TmpLogin();
         void CreateRoom();
         void GetRoomList();
+        void GetRoomInfo();
         void EnterRoom();
         void PlayerReady();
         void ChangeRole();

@@ -332,15 +332,7 @@ void Server::CreateRoom() {
     cur_player->is_ready = false;
     cur_player->SetRole(ENGINEER);
     id_to_room_[available_room_id_]->AddPlayer(cur_player);
-
-    PlayerInfo *player_info = create_room_s2c.mutable_roomownerinfo();
-    player_info->set_playerid(cur_player->GetUid());
-    player_info->set_username(cur_player->GetUserName());
-    player_info->set_role(cur_player->GetRole());
-    player_info->set_isready(cur_player->is_ready);
-    create_room_s2c.set_succeed(true);
-    create_room_s2c.set_roomid(available_room_id_);
-    Send(create_room_s2c, CREATE_ROOM_RET);
+    GetRoomInfo();
 }
 
 void Server::GetRoomList() {
@@ -356,6 +348,37 @@ void Server::GetRoomList() {
         room_info->set_maxsize((*it).second->GetRoomSize());
     }
     Send(get_room_list_s2c, GET_ROOM_LIST_RET);
+}
+
+void Server::GetRoomInfo() {
+    GetRoomInfoS2C get_room_info_s2c = GetRoomInfoS2C();
+    cur_uid_ = fd_to_uid_[cur_fd_];
+    Player *cur_player = uid_to_player_[cur_uid_];
+    if (!cur_player->is_in_room) {
+        get_room_info_s2c.set_succeed(false);
+        get_room_info_s2c.set_error(NOT_IN_ROOM_ERROR);
+        Send(get_room_info_s2c, GET_ROOM_INFO_BROAD_CAST);
+        CloseClientFd();
+        /*
+            TODO: 客户端不在房间但是发了房间有关包，把它踢了
+                  可能是服务器出错了，也可能是客户端错了
+        */
+        return ;
+    }
+    Room *cur_room = id_to_room_[cur_player->GetRoomId()];
+    PlayerInfo *player_info = nullptr;
+    set<Player *, PlayerCmp>::iterator it;
+    for (it = cur_room->player_set_.begin(); it != cur_room->player_set_.end(); ++it) {
+        player_info = get_room_info_s2c.add_playersinfo();
+        cur_player = (*it);
+        player_info->set_playerid(cur_player->GetUid());
+        player_info->set_username(cur_player->GetUserName());
+        player_info->set_role(cur_player->GetRole());
+        player_info->set_isready(cur_player->is_ready);
+    }
+    get_room_info_s2c.set_roomownerid(cur_room->GetOwnerUid());
+    get_room_info_s2c.set_succeed(true);
+    BroadCast(cur_room->player_set_, get_room_info_s2c, GET_ROOM_INFO_BROAD_CAST);
 }
 
 void Server::EnterRoom() {
@@ -381,30 +404,9 @@ void Server::EnterRoom() {
     }
     cur_player->is_ready = false;
     cur_player->SetRole(ENGINEER);
-    PlayerInfo *player_info = enter_room_s2c.mutable_playerinfo();
-    player_info->set_playerid(cur_player->GetUid());
-    player_info->set_username(cur_player->GetUserName());
-    player_info->set_role(cur_player->GetRole());
-    player_info->set_isready(cur_player->is_ready);
-
     Room *cur_room = id_to_room_[cur_room_id];
-    BroadCast(cur_room->player_set_,
-              enter_room_s2c, ENTER_ROOM_BROAD_CAST);
-    
     cur_room->AddPlayer(cur_player);
-    get_room_info_s2c.set_succeed(true);
-    get_room_info_s2c.set_roomownerid(cur_room->GetOwnerUid());
-    set<Player *, PlayerCmp>::iterator it;
-    for (it = cur_room->player_set_.begin(); it != cur_room->player_set_.end(); ++it) {
-        player_info = get_room_info_s2c.add_playersinfo();
-        cur_player = (*it);
-        player_info->set_playerid(cur_player->GetUid());
-        player_info->set_username(cur_player->GetUserName());
-        player_info->set_role(cur_player->GetRole());
-        player_info->set_isready(cur_player->is_ready);
-    }
-    Send(get_room_info_s2c, ENTER_ROOM_RET);
-
+    GetRoomInfo();
 }
 
 void Server::PlayerReady() {
@@ -413,7 +415,7 @@ void Server::PlayerReady() {
     Player *cur_player = uid_to_player_[cur_uid_];
     if (!cur_player->is_in_room) {
         player_ready_s2c.set_error(NOT_IN_ROOM_ERROR);
-        Send(player_ready_s2c, PLAYER_READY_BROAD_CAST);
+        Send(player_ready_s2c, PLAYER_READY_RET);
         CloseClientFd();
         /*
             TODO: 客户端不在房间但是发了房间有关包，把它踢了
@@ -422,10 +424,7 @@ void Server::PlayerReady() {
         return ;
     }
     cur_player->is_ready = !cur_player->is_ready;
-    player_ready_s2c.set_uid(cur_uid_);
-    player_ready_s2c.set_isready(cur_player->is_ready);
-    Room *cur_room = id_to_room_[cur_player->GetRoomId()];
-    BroadCast(cur_room->player_set_, player_ready_s2c, PLAYER_READY_BROAD_CAST);
+    GetRoomInfo();
 }
 
 void Server::ChangeRole() {
@@ -433,7 +432,7 @@ void Server::ChangeRole() {
     ChangeRoleC2S change_role_c2s = ChangeRoleC2S();
     if (!Deserialize(change_role_c2s)) {
         change_role_s2c.set_error(-1);
-        Send(change_role_s2c, ROOM_CHANGE_ROLE_BROAD_CAST);
+        Send(change_role_s2c, ROOM_CHANGE_ROLE_RET);
         CloseClientFd();
         /*
             TODO: 客户端数据包出错，把它踢了
@@ -442,21 +441,8 @@ void Server::ChangeRole() {
     }
     int cur_uid_ = fd_to_uid_[cur_fd_];
     Player *cur_player = uid_to_player_[cur_uid_];
-    if (!cur_player->is_in_room) {
-        change_role_s2c.set_error(NOT_IN_ROOM_ERROR);
-        Send(change_role_s2c, ROOM_CHANGE_ROLE_BROAD_CAST);
-        CloseClientFd();
-        /*
-            TODO: 客户端不在房间但是发了房间有关包，把它踢了
-                  可能是服务器出错了，也可能是客户端错了
-        */
-        return ;
-    }
-    change_role_s2c.set_uid(cur_uid_);
     cur_player->SetRole(change_role_c2s.role());
-    change_role_s2c.set_role(change_role_c2s.role());
-    Room *cur_room = id_to_room_[cur_player->GetRoomId()];
-    BroadCast(cur_room->player_set_, change_role_s2c, ROOM_CHANGE_ROLE_BROAD_CAST);
+    GetRoomInfo();
 }
 
 void Server::LeaveRoom() {
@@ -465,7 +451,7 @@ void Server::LeaveRoom() {
     Player *cur_player = uid_to_player_[cur_uid_];
     if (!cur_player->is_in_room) {
         leave_room_s2c.set_error(NOT_IN_ROOM_ERROR);
-        Send(leave_room_s2c, LEAVE_ROOM_BROAD_CAST);
+        Send(leave_room_s2c, LEAVE_ROOM_RET);
         CloseClientFd();
         /*
             TODO: 客户端不在房间但是发了房间有关包，把它踢了
@@ -473,7 +459,6 @@ void Server::LeaveRoom() {
         */
         return ;
     }
-    leave_room_s2c.set_uid(cur_uid_);
     Room *cur_room = id_to_room_[cur_player->GetRoomId()];
     cur_room->RemovePlayer(cur_player);
     if (cur_room->GetCurRoomSize() <= 0) {
@@ -481,7 +466,7 @@ void Server::LeaveRoom() {
         delete cur_room;
         cur_room = nullptr;
     } else {
-        BroadCast(cur_room->player_set_, leave_room_s2c, LEAVE_ROOM_BROAD_CAST);
+        GetRoomInfo();
     }
 }
 
@@ -564,9 +549,10 @@ void Server::CloseClientFd() {
         Player *cur_player = uid_to_player_[cur_uid_];
         if (cur_player->is_in_game) {
             cur_player->is_sync_frame_ = false;
-        } else if (cur_player->is_in_room) {
-            LeaveRoom();
         } else {
+            if (cur_player->is_in_room) {
+                LeaveRoom();
+            }
             delete cur_player;
             uid_to_player_.erase(cur_uid_);
         }
