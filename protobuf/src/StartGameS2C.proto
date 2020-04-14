@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message StartGameS2C {
+    int32 error = 1;
+    bool succeed = 2;
+}

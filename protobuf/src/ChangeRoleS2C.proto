@@ -1,0 +1,8 @@
+syntax = "proto3";
+import "PlayerInfo.proto";
+
+message ChangeRoleS2C {
+    int32 error = 1;
+    int32 uid = 2;
+    Role role = 3;
+}

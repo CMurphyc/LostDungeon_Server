@@ -1,0 +1,5 @@
+syntax="proto3";
+
+message CreateRoomC2S {
+    int32 roomSize = 1;
+}

@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message PlayerReadyS2C {
+    int32 error = 1;
+    int32 uid = 2;
+    bool isReady = 3;
+}

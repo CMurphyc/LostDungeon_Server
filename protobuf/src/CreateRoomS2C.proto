@@ -1,0 +1,9 @@
+syntax="proto3";
+import "PlayerInfo.proto";
+
+message CreateRoomS2C {
+    int32 error = 1;
+    bool succeed = 2;
+    int32 roomId = 3;
+    PlayerInfo roomOwnerInfo = 4;
+}

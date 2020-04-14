@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+enum Role {
+    ENGINEER = 0;
+    GUARDIAN = 1;
+    MAGICIAN = 2;
+}
+
+message PlayerInfo {
+    int32 playerId = 1;
+    string userName = 2;
+    Role role = 3;
+    bool isReady = 4;
+}

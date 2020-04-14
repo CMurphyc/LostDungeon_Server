@@ -1,0 +1,6 @@
+syntax="proto3";
+
+message BattleInputS2C {
+    int32 error = 1;
+    
+}

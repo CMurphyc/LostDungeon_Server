@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+message RoomInfo {
+	int32 roomid = 1;
+	int32 maxsize = 2;
+	int32 currentsize = 3;
+}
+
+message GetRoomListS2C {
+    int32 error = 1;
+	repeated RoomInfo roomsInfo = 2;
+}
+
+

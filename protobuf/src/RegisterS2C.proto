@@ -1,0 +1,10 @@
+syntax="proto3";
+
+message RegisterS2C {
+    enum RegisterRet {
+        REGISTER_SUCCESS = 0;   //注册成功
+        EXIST_USERNAME = 1;     //用户名已存在
+    }
+    int32 error = 1;
+    RegisterRet registerRet = 2;
+}

@@ -1,0 +1,15 @@
+syntax="proto3";
+
+message LoginS2C {
+    enum LoginRet {
+        LOGIN_SUCCESS = 0;      //登录成功
+        WRONG_PASSWORD = 1;     //密码错误
+        NONE_USERNAME = 2;      //用户名不存在
+        ALREADY_ONLINE = 3;     //登录的账号已经在线
+        SERVER_FULL = 4;        //服务器玩家已满
+    }
+    int32 error = 1;
+    LoginRet loginRet = 2;
+    int32 uid = 3;
+    string userName = 4;
+}

@@ -1,0 +1,7 @@
+syntax = "proto3";
+import "PlayerInfo.proto";
+
+message EnterRoomS2C {
+    int32 error = 1;
+    PlayerInfo playerInfo = 2;
+}
