@@ -4,6 +4,7 @@ import "PlayerInfo.proto";
 message GetRoomInfoS2C {
     int32 error = 1;
     bool succeed = 2;
-    int32 roomOwnerId = 3;
-    repeated PlayerInfo playersInfo = 4;
+    int32 roomId = 3;
+    int32 roomOwnerId = 4;
+    repeated PlayerInfo playersInfo = 5;
 }

@@ -38,7 +38,8 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "*.6319": "cpp"
     },
     "remote.SSH.connectTimeout": 60
 }

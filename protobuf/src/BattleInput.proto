@@ -1,0 +1,10 @@
+syntax="proto3";
+
+message BattleInput {
+    int32 uid = 1;
+    int32 moveDirectionX = 2;
+    int32 moveDirectionY = 3;
+    int32 attackType = 4;
+    int32 attackDirectionX = 5;
+    int32 attackDirectionY = 6;
+}

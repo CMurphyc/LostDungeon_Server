@@ -55,6 +55,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::LeaveRoomS2C, error_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::LeaveRoomS2C, succeed_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::LeaveRoomS2C, uid_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
@@ -87,11 +88,12 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\022LeaveRoomS2C.proto\"*\n\014LeaveRoomS2C\022\r\n\005"
-      "error\030\001 \001(\005\022\013\n\003uid\030\002 \001(\005b\006proto3"
+      "\n\022LeaveRoomS2C.proto\";\n\014LeaveRoomS2C\022\r\n\005"
+      "error\030\001 \001(\005\022\017\n\007succeed\030\002 \001(\010\022\013\n\003uid\030\003 \001("
+      "\005b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 72);
+      descriptor, 89);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "LeaveRoomS2C.proto", &protobuf_RegisterTypes);
 }
@@ -114,6 +116,7 @@ void LeaveRoomS2C::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int LeaveRoomS2C::kErrorFieldNumber;
+const int LeaveRoomS2C::kSucceedFieldNumber;
 const int LeaveRoomS2C::kUidFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -210,10 +213,24 @@ bool LeaveRoomS2C::MergePartialFromCodedStream(
         break;
       }
 
-      // int32 uid = 2;
+      // bool succeed = 2;
       case 2: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &succeed_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 uid = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
@@ -255,9 +272,14 @@ void LeaveRoomS2C::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->error(), output);
   }
 
-  // int32 uid = 2;
+  // bool succeed = 2;
+  if (this->succeed() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->succeed(), output);
+  }
+
+  // int32 uid = 3;
   if (this->uid() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->uid(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->uid(), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -279,9 +301,14 @@ void LeaveRoomS2C::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->error(), target);
   }
 
-  // int32 uid = 2;
+  // bool succeed = 2;
+  if (this->succeed() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->succeed(), target);
+  }
+
+  // int32 uid = 3;
   if (this->uid() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->uid(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->uid(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -308,7 +335,12 @@ size_t LeaveRoomS2C::ByteSizeLong() const {
         this->error());
   }
 
-  // int32 uid = 2;
+  // bool succeed = 2;
+  if (this->succeed() != 0) {
+    total_size += 1 + 1;
+  }
+
+  // int32 uid = 3;
   if (this->uid() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
@@ -347,6 +379,9 @@ void LeaveRoomS2C::MergeFrom(const LeaveRoomS2C& from) {
   if (from.error() != 0) {
     set_error(from.error());
   }
+  if (from.succeed() != 0) {
+    set_succeed(from.succeed());
+  }
   if (from.uid() != 0) {
     set_uid(from.uid());
   }
@@ -377,6 +412,7 @@ void LeaveRoomS2C::Swap(LeaveRoomS2C* other) {
 void LeaveRoomS2C::InternalSwap(LeaveRoomS2C* other) {
   using std::swap;
   swap(error_, other->error_);
+  swap(succeed_, other->succeed_);
   swap(uid_, other->uid_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);

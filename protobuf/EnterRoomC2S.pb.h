@@ -136,10 +136,17 @@ class EnterRoomC2S : public ::google::protobuf::Message /* @@protoc_insertion_po
 
   // accessors -------------------------------------------------------
 
+  // int32 roomId = 1;
+  void clear_roomid();
+  static const int kRoomIdFieldNumber = 1;
+  ::google::protobuf::int32 roomid() const;
+  void set_roomid(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:EnterRoomC2S)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 roomid_;
   mutable int _cached_size_;
   friend struct ::protobuf_EnterRoomC2S_2eproto::TableStruct;
   friend void ::protobuf_EnterRoomC2S_2eproto::InitDefaultsEnterRoomC2SImpl();
@@ -154,6 +161,20 @@ class EnterRoomC2S : public ::google::protobuf::Message /* @@protoc_insertion_po
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
 // EnterRoomC2S
+
+// int32 roomId = 1;
+inline void EnterRoomC2S::clear_roomid() {
+  roomid_ = 0;
+}
+inline ::google::protobuf::int32 EnterRoomC2S::roomid() const {
+  // @@protoc_insertion_point(field_get:EnterRoomC2S.roomId)
+  return roomid_;
+}
+inline void EnterRoomC2S::set_roomid(::google::protobuf::int32 value) {
+  
+  roomid_ = value;
+  // @@protoc_insertion_point(field_set:EnterRoomC2S.roomId)
+}
 
 #ifdef __GNUC__
   #pragma GCC diagnostic pop

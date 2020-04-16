@@ -3,6 +3,7 @@
 
 #include <string>
 #include "../protobuf/PlayerInfo.pb.h"
+#include "../protobuf/BattleInput.pb.h"
 using namespace std;
 
 class Player {
@@ -12,7 +13,7 @@ class Player {
         int client_fd_;
         //所在房间id
         int room_id_;
-        string userName_;
+        string user_name_;
         string password_;
         //职业
         Role role_;
@@ -28,7 +29,8 @@ class Player {
         bool is_in_game;
         //在房间内的id
         int in_room_id_;
-        
+        //玩家当前帧操作
+        BattleInput cur_battle_input_;
         
         Player();
         Player(int uid);
@@ -38,6 +40,7 @@ class Player {
         void SetRoomId(int id);
         int GetRoomId();
         int GetUid();
+        void SetUserName(string user_name);
         string GetUserName();
         void SetRole(Role role);
         Role GetRole();

@@ -13,6 +13,10 @@
 #include "../protobuf/PlayerInfo.pb.h"
 #include "../protobuf/RegisterC2S.pb.h"
 #include "../protobuf/RegisterS2C.pb.h"
+#include "../protobuf/BattleFrame.pb.h"
+#include "../protobuf/BattleFrame.pb.h"
+#include "../protobuf/BattleInput.pb.h"
+#include "../protobuf/BattleInput.pb.h"
 #include "../protobuf/EnterRoomC2S.pb.h"
 #include "../protobuf/EnterRoomS2C.pb.h"
 #include "../protobuf/LeaveRoomC2S.pb.h"
@@ -25,10 +29,6 @@
 #include "../protobuf/CreateRoomS2C.pb.h"
 #include "../protobuf/PlayerReadyC2S.pb.h"
 #include "../protobuf/PlayerReadyS2C.pb.h"
-#include "../protobuf/BattleFrameC2S.pb.h"
-#include "../protobuf/BattleFrameS2C.pb.h"
-#include "../protobuf/BattleInputC2S.pb.h"
-#include "../protobuf/BattleInputS2C.pb.h"
 #include "../protobuf/GetRoomListC2S.pb.h"
 #include "../protobuf/GetRoomListS2C.pb.h"
 #include "../protobuf/GetRoomInfoC2S.pb.h"
@@ -46,7 +46,6 @@ class Server {
         unordered_map<int, Player *> uid_to_player_;
         ClientBuff *cur_client_buff_;
         char *cur_ret_buff_;
-        int cur_uid_;
         int cur_fd_;
         int cur_recv_len_;
         int cur_recv_msg_len_, cur_recv_msg_type_;
@@ -78,17 +77,18 @@ class Server {
         void TmpLogin();
         void CreateRoom();
         void GetRoomList();
-        void GetRoomInfo();
+        void GetRoomInfo(int room_id);
         void EnterRoom();
         void PlayerReady();
         void ChangeRole();
         void LeaveRoom();
         void StartGame();
-        void HandlePVPInput();
-        void AddFrame();
+        void HandleBattleInput();
+        void BroadCastBattleFrame();
         void CloseClientFd();
         void UpdateTimeVal(struct timeval &tv);
         bool CheckTimeInterval(struct timeval &pre_tv);
+        bool CheckRoomLegality(int &cur_uid, Player *cur_player, Room *cur_room);
         void BroadCast(set<Player *, PlayerCmp> &player_set,
                        google::protobuf::Message &message,
                        int msg_type);

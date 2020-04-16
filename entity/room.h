@@ -11,10 +11,10 @@
 #include "../protobuf/LoginS2C.pb.h"
 #include "../protobuf/RegisterC2S.pb.h"
 #include "../protobuf/RegisterS2C.pb.h"
-#include "../protobuf/BattleFrameC2S.pb.h"
-#include "../protobuf/BattleFrameS2C.pb.h"
-#include "../protobuf/BattleInputC2S.pb.h"
-#include "../protobuf/BattleInputS2C.pb.h"
+#include "../protobuf/BattleFrame.pb.h"
+#include "../protobuf/BattleFrame.pb.h"
+#include "../protobuf/BattleInput.pb.h"
+#include "../protobuf/BattleInput.pb.h"
 using namespace std;
 
 class Room {
@@ -25,11 +25,11 @@ class Room {
         int cur_room_size_;
         int room_size_;
         //帧同步有关数据
-        vector<BattleFrameS2C*> battle_frames;
+        vector<BattleFrame> battle_frames;
         int frame_count_;
     public:
         //该房间游戏是否开始
-        bool is_start;
+        bool is_start_;
         //上次广播的时间
         struct timeval pre_tv_;
         //需要广播的所有玩家
@@ -49,6 +49,7 @@ class Room {
         int GetRoomSize();
         int GetCurRoomSize();
         bool StartGame();
+        void CollectPlayerInput(BattleFrame &battle_frame);
 };
 
 //房间在小根堆中的比较，把已经开始游戏的以及上次广播时间小的房间排前面

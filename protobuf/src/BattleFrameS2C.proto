@@ -1,6 +1,0 @@
-syntax="proto3";
-
-message BattleFrameS2C {
-    int32 error = 1;
-    
-}

@@ -142,9 +142,15 @@ class LeaveRoomS2C : public ::google::protobuf::Message /* @@protoc_insertion_po
   ::google::protobuf::int32 error() const;
   void set_error(::google::protobuf::int32 value);
 
-  // int32 uid = 2;
+  // bool succeed = 2;
+  void clear_succeed();
+  static const int kSucceedFieldNumber = 2;
+  bool succeed() const;
+  void set_succeed(bool value);
+
+  // int32 uid = 3;
   void clear_uid();
-  static const int kUidFieldNumber = 2;
+  static const int kUidFieldNumber = 3;
   ::google::protobuf::int32 uid() const;
   void set_uid(::google::protobuf::int32 value);
 
@@ -153,6 +159,7 @@ class LeaveRoomS2C : public ::google::protobuf::Message /* @@protoc_insertion_po
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::int32 error_;
+  bool succeed_;
   ::google::protobuf::int32 uid_;
   mutable int _cached_size_;
   friend struct ::protobuf_LeaveRoomS2C_2eproto::TableStruct;
@@ -183,7 +190,21 @@ inline void LeaveRoomS2C::set_error(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:LeaveRoomS2C.error)
 }
 
-// int32 uid = 2;
+// bool succeed = 2;
+inline void LeaveRoomS2C::clear_succeed() {
+  succeed_ = false;
+}
+inline bool LeaveRoomS2C::succeed() const {
+  // @@protoc_insertion_point(field_get:LeaveRoomS2C.succeed)
+  return succeed_;
+}
+inline void LeaveRoomS2C::set_succeed(bool value) {
+  
+  succeed_ = value;
+  // @@protoc_insertion_point(field_set:LeaveRoomS2C.succeed)
+}
+
+// int32 uid = 3;
 inline void LeaveRoomS2C::clear_uid() {
   uid_ = 0;
 }

@@ -137,10 +137,10 @@ class GetRoomInfoS2C : public ::google::protobuf::Message /* @@protoc_insertion_
 
   // accessors -------------------------------------------------------
 
-  // repeated .PlayerInfo playersInfo = 4;
+  // repeated .PlayerInfo playersInfo = 5;
   int playersinfo_size() const;
   void clear_playersinfo();
-  static const int kPlayersInfoFieldNumber = 4;
+  static const int kPlayersInfoFieldNumber = 5;
   const ::PlayerInfo& playersinfo(int index) const;
   ::PlayerInfo* mutable_playersinfo(int index);
   ::PlayerInfo* add_playersinfo();
@@ -161,9 +161,15 @@ class GetRoomInfoS2C : public ::google::protobuf::Message /* @@protoc_insertion_
   bool succeed() const;
   void set_succeed(bool value);
 
-  // int32 roomOwnerId = 3;
+  // int32 roomId = 3;
+  void clear_roomid();
+  static const int kRoomIdFieldNumber = 3;
+  ::google::protobuf::int32 roomid() const;
+  void set_roomid(::google::protobuf::int32 value);
+
+  // int32 roomOwnerId = 4;
   void clear_roomownerid();
-  static const int kRoomOwnerIdFieldNumber = 3;
+  static const int kRoomOwnerIdFieldNumber = 4;
   ::google::protobuf::int32 roomownerid() const;
   void set_roomownerid(::google::protobuf::int32 value);
 
@@ -174,6 +180,7 @@ class GetRoomInfoS2C : public ::google::protobuf::Message /* @@protoc_insertion_
   ::google::protobuf::RepeatedPtrField< ::PlayerInfo > playersinfo_;
   ::google::protobuf::int32 error_;
   bool succeed_;
+  ::google::protobuf::int32 roomid_;
   ::google::protobuf::int32 roomownerid_;
   mutable int _cached_size_;
   friend struct ::protobuf_GetRoomInfoS2C_2eproto::TableStruct;
@@ -218,7 +225,21 @@ inline void GetRoomInfoS2C::set_succeed(bool value) {
   // @@protoc_insertion_point(field_set:GetRoomInfoS2C.succeed)
 }
 
-// int32 roomOwnerId = 3;
+// int32 roomId = 3;
+inline void GetRoomInfoS2C::clear_roomid() {
+  roomid_ = 0;
+}
+inline ::google::protobuf::int32 GetRoomInfoS2C::roomid() const {
+  // @@protoc_insertion_point(field_get:GetRoomInfoS2C.roomId)
+  return roomid_;
+}
+inline void GetRoomInfoS2C::set_roomid(::google::protobuf::int32 value) {
+  
+  roomid_ = value;
+  // @@protoc_insertion_point(field_set:GetRoomInfoS2C.roomId)
+}
+
+// int32 roomOwnerId = 4;
 inline void GetRoomInfoS2C::clear_roomownerid() {
   roomownerid_ = 0;
 }
@@ -232,7 +253,7 @@ inline void GetRoomInfoS2C::set_roomownerid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:GetRoomInfoS2C.roomOwnerId)
 }
 
-// repeated .PlayerInfo playersInfo = 4;
+// repeated .PlayerInfo playersInfo = 5;
 inline int GetRoomInfoS2C::playersinfo_size() const {
   return playersinfo_.size();
 }

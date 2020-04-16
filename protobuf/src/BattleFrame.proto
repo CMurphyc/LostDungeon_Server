@@ -1,0 +1,9 @@
+syntax = "proto3";
+import "BattleInput.proto";
+
+message BattleFrame {
+    int32 error = 1;
+    int32 frameNumber = 2;
+    int32 randomCode = 3;
+    repeated BattleInput battleInputs = 4;
+}

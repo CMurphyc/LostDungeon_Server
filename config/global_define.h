@@ -36,10 +36,12 @@
 #define LEAVE_ROOM_REQ 16
 #define START_GAME_REQ 17
 
+#define BATTLE_INPUT_REQ 50
+
 #define LOGIN_RET 101
 #define REGISTER_RET 102
 
- #define CREATE_ROOM_RET 110
+#define CREATE_ROOM_RET 110
 #define GET_ROOM_LIST_RET 111
 #define ENTER_ROOM_RET 112
 #define GET_ROOM_INFO_BROAD_CAST 113
@@ -48,6 +50,10 @@
 #define LEAVE_ROOM_RET 116
 #define START_GAME_BROAD_CAST 117
 
+//单独返回包的信号，可能有出错，返回的包还是BattleFrame
+#define BATTLE_INPUT_RET 150
+//广播帧的信号
+#define BATTLE_FRAME_BROAD_CAST 151
 
 #define PER_FRAME_TIME 50000
 #define PORT 10000
