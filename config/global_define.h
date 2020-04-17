@@ -17,9 +17,12 @@
 
 #define BUFF_SIZE 2048
 #define MAXEVENTS 64
+
 #define MAX_ROOM_NUMBER 100
 #define MAX_PLAYER_NUMBER 1000
-#define DEFAULE_ROOM_SIZE 4
+#define DEFAULT_ROOM_SIZE 4
+#define DEFAULT_RANDOM_DIGIT 8
+#define DEFAULT_FLOOR_NUMBER 1
 
 #define HEAD_SIZE 8
 #define LEN_SIZE 4
@@ -35,6 +38,7 @@
 #define ROOM_CHANGE_ROLE_REQ 15
 #define LEAVE_ROOM_REQ 16
 #define START_GAME_REQ 17
+#define START_SYNC_REQ 18
 
 #define BATTLE_INPUT_REQ 50
 
@@ -49,12 +53,15 @@
 #define ROOM_CHANGE_ROLE_RET 115
 #define LEAVE_ROOM_RET 116
 #define START_GAME_BROAD_CAST 117
+//以后用的
+#define START_SYNC_BROAD_CAST 118
 
 //单独返回包的信号，可能有出错，返回的包还是BattleFrame
 #define BATTLE_INPUT_RET 150
 //广播帧的信号
 #define BATTLE_FRAME_BROAD_CAST 151
 
+#define BEFORE_SYNC_WAIT_TIME 3000000
 #define PER_FRAME_TIME 50000
 #define PORT 10000
 

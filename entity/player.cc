@@ -7,7 +7,7 @@ Player::Player() {
 Player::Player(int uid) {
     uid_ = uid;
     in_room_id_ = 99999;
-    is_sync_frame_ = false;
+    is_online = true;
     is_in_room = false;
     is_ready = false;
     is_in_game = false;

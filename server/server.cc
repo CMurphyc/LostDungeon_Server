@@ -13,26 +13,26 @@
 
 void Server::Recv() {
     if (fd_to_buff_.find(cur_fd_) == fd_to_buff_.end()) {
-        printf("Recv fd do not exist!\n");
+        // printf("Recv fd do not exist!\n");
         return ;
     }
     cur_recv_len_ = recv(cur_fd_,
                          cur_client_buff_->buff_ + cur_client_buff_->tail_,
                          BUFF_SIZE - cur_client_buff_->tail_, 0);
     if (cur_recv_len_ > 0) {
-        printf("recv %d bytes from %d fd\n", cur_recv_len_, cur_fd_);
+        // printf("recv %d bytes from %d fd\n", cur_recv_len_, cur_fd_);
         HandleRecvPackage();
     } else if (cur_recv_len_ == 0) {
         //close
-        CloseClientFd();
+        CloseClientFd(cur_fd_);
     } else if (cur_recv_len_ == -1) {
         //这几个错误参数还可以继续进行读写
         if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
             return ;
         }
-        CloseClientFd();
-        printf("recv failed, errno = %d, errno_message = %s\n",
-                errno, strerror(errno));
+        CloseClientFd(cur_fd_);
+        // printf("recv failed, errno = %d, errno_message = %s\n",
+        //         errno, strerror(errno));
     }
 }
 
@@ -44,10 +44,11 @@ void Server::Send(google::protobuf::Message &message, int msg_type) {
     if (send_ret == -1) {
         printf("server send to fd: %d error, errno = %d\n",
             send_ret, errno);
+        CloseClientFd(cur_fd_);
         return ;
     } else {
-        printf("server send to fd_%d| %d bytes\n", cur_fd_, send_ret);
-        //message.PrintDebugString();
+        // printf("server send to fd_%d| %d bytes\n", cur_fd_, send_ret);
+        // //message.PrintDebugString();
     }
 }
 
@@ -112,7 +113,7 @@ void Server::HandleRecvPackage() {
 
 //服务器根据包头中的类型来进行相应操作
 void Server::HandleMsg() {
-    printf("fd %d req %d\n", cur_fd_, cur_recv_msg_type_);
+    // printf("fd %d req %d\n", cur_fd_, cur_recv_msg_type_);
     switch (cur_recv_msg_type_) {
         case LOGIN_REQ:
             TmpLogin();
@@ -140,7 +141,7 @@ void Server::HandleMsg() {
             LeaveRoom();
             break;
         case BATTLE_INPUT_REQ:
-            BattleInput();
+            HandleBattleInput();
             break;
     }
 
@@ -165,7 +166,7 @@ bool Server::Deserialize(google::protobuf::Message &message) {
         cur_client_buff_->head_ + HEAD_SIZE,
         cur_recv_msg_len_);
     if (ret < 0) {
-        printf("fd: %d Deserialization error!\n", cur_fd_);
+        // printf("fd: %d Deserialization error!\n", cur_fd_);
         return false;
     }
     cout << "++++++++++" << endl;
@@ -180,7 +181,7 @@ bool Server::Serialize(google::protobuf::Message &message) {
     cout << "----------" << endl;
     int ret = message.SerializeToArray(cur_ret_buff_ + HEAD_SIZE, cur_ret_msg_len_);
     if (ret < 0) {
-        printf("fd: %d Serialize error!\n", cur_fd_);
+        // printf("fd: %d Serialize error!\n", cur_fd_);
         return false;
     }
     return true;
@@ -271,7 +272,7 @@ void Server::TmpLogin() {
     if (!Deserialize(login_c2s)) {
         login_s2c.set_error(DESERIALIZE_ERROR);
         Send(login_s2c, LOGIN_RET);
-        CloseClientFd();
+        CloseClientFd(cur_fd_);
         /*
             TODO: 客户端数据包出错，把它踢了
         */
@@ -279,29 +280,38 @@ void Server::TmpLogin() {
     }
     //把登录信息反馈给客户端
     //判断下有没有重复的用户名在线
-    int cur_uid = TmpLoginCheck(login_c2s);
+    // int cur_uid = TmpLoginCheck(login_c2s);
+    // login_s2c.set_uid(cur_uid);
+    // login_s2c.set_username(login_c2s.username());
+    // if (fd_to_uid_.find(cur_fd_) == fd_to_uid_.end()) {
+    //     if (uid_to_player_.find(cur_uid) == uid_to_player_.end()) {
+    //         //正常登录
+    //         uid_to_player_[cur_uid] = new Player(cur_uid);
+    //     } else if (uid_to_player_[cur_uid]->is_in_game) {
+    //         /*
+    //             TODO: 断线重连
+    //                   (把所有帧发给它)
+    //                   (发完后更新is_sync_frame_，再开始同步广播帧同步帧)
+    //         */
+    //     }
+    //     Player *cur_player = uid_to_player_[cur_uid];
+    //     cur_player->SetClientFd(cur_fd_);
+    //     cur_player->SetUserName(login_c2s.username());
+    //     fd_to_uid_[cur_fd_] = cur_uid;
+    //     login_s2c.set_loginret(LoginS2C_LoginRet_LOGIN_SUCCESS);
+    // } else {
+    //     //同一个账号不能重复登录且一个客户端不能登录多个账号
+    //     login_s2c.set_loginret(LoginS2C_LoginRet_ALREADY_ONLINE);
+    // }
+    int cur_uid = (++player_count_);
     login_s2c.set_uid(cur_uid);
     login_s2c.set_username(login_c2s.username());
-    if (fd_to_uid_.find(cur_fd_) == fd_to_uid_.end()) {
-        if (uid_to_player_.find(cur_uid) == uid_to_player_.end()) {
-            //正常登录
-            uid_to_player_[cur_uid] = new Player(cur_uid);
-        } else if (uid_to_player_[cur_uid]->is_in_game) {
-            /*
-                TODO: 断线重连
-                      (把所有帧发给它)
-                      (发完后更新is_sync_frame_，再开始同步广播帧同步帧)
-            */
-        }
-        Player *cur_player = uid_to_player_[cur_uid];
-        cur_player->SetClientFd(cur_fd_);
-        cur_player->SetUserName(login_c2s.username());
-        fd_to_uid_[cur_fd_] = cur_uid;
-        login_s2c.set_loginret(LoginS2C_LoginRet_LOGIN_SUCCESS);
-    } else {
-        //同一个账号不能重复登录且一个客户端不能登录多个账号
-        login_s2c.set_loginret(LoginS2C_LoginRet_ALREADY_ONLINE);
-    }
+    uid_to_player_[cur_uid] = new Player(cur_uid);
+    Player *cur_player = uid_to_player_[cur_uid];
+    cur_player->SetClientFd(cur_fd_);
+    cur_player->SetUserName(login_c2s.username());
+    fd_to_uid_[cur_fd_] = cur_uid;
+    login_s2c.set_loginret(LoginS2C_LoginRet_LOGIN_SUCCESS);
     Send(login_s2c, LOGIN_RET);
 }
 
@@ -316,7 +326,7 @@ void Server::CreateRoom() {
     if (!Deserialize(create_room_c2s)) {
         create_room_s2c.set_error(DESERIALIZE_ERROR);
         Send(create_room_s2c, CREATE_ROOM_RET);
-        CloseClientFd();
+        CloseClientFd(cur_fd_);
         /*
             TODO: 客户端数据包出错，把它踢了
         */
@@ -377,8 +387,6 @@ void Server::GetRoomInfo(int room_id) {
     Room *cur_room = id_to_room_[room_id];
     PlayerInfo *player_info = nullptr;
     Player *cur_player = nullptr;
-    cout << "\\\\\\\\\\\\" << endl;
-    cout << "cur_room id : " << cur_room->GetRoomId() << " cur room size : " << cur_room->GetCurRoomSize() << " owner : " << cur_room->GetOwnerUid() << endl;
     set<Player *, PlayerCmp>::iterator it;
     for (it = cur_room->player_set_.begin(); it != cur_room->player_set_.end(); ++it) {
         player_info = get_room_info_s2c.add_playersinfo();
@@ -393,7 +401,6 @@ void Server::GetRoomInfo(int room_id) {
         cout << "player status: " << cur_player->is_ready << endl;
         cout << "player room id: " << cur_player->GetRoomId() << endl;
     }
-    cout << "////////////////" << endl;
     get_room_info_s2c.set_roomownerid(cur_room->GetOwnerUid());
     get_room_info_s2c.set_roomid(cur_room->GetRoomId());
     get_room_info_s2c.set_succeed(true);
@@ -407,7 +414,7 @@ void Server::EnterRoom() {
     if (!Deserialize(enter_room_c2s)) {
         get_room_info_s2c.set_error(DESERIALIZE_ERROR);
         Send(get_room_info_s2c, ENTER_ROOM_RET);
-        CloseClientFd();
+        CloseClientFd(cur_fd_);
         /*
             TODO: 客户端数据包出错，把它踢了
         */
@@ -440,7 +447,7 @@ void Server::PlayerReady() {
         player_ready_s2c.set_error(NOT_IN_ROOM_ERROR);
         Send(player_ready_s2c, PLAYER_READY_RET);
         cout << "PlayerReady:: " << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-        CloseClientFd();
+        CloseClientFd(cur_fd_);
         /*
             TODO: 客户端不在房间但是发了房间有关包，把它踢了
                   可能是服务器出错了，也可能是客户端错了
@@ -455,11 +462,25 @@ void Server::PlayerReady() {
         StartGameS2C start_game_s2c = StartGameS2C();
         if (cur_room->StartGame()) {
             start_game_s2c.set_succeed(true);
-            BroadCast(cur_room->player_set_, start_game_s2c, START_GAME_BROAD_CAST);
+            start_game_s2c.set_seed(GenerateRandomNumber(DEFAULT_RANDOM_DIGIT));
+            start_game_s2c.set_floornumber(DEFAULT_FLOOR_NUMBER);
+            set<Player *, PlayerCmp>::iterator it;
+            PlayerInfo *player_info = nullptr;
+            for (it = cur_room->player_set_.begin(); 
+                 it != cur_room->player_set_.end(); ++it) {
+                player_info = start_game_s2c.add_playersinfo();
+                player_info->set_playerid((*it)->GetUid());
+                player_info->set_username((*it)->GetUserName());
+                player_info->set_role((*it)->GetRole());
+            }
+            cur_room->start_game_s2c.CopyFrom(start_game_s2c);
+            BroadCast(cur_room->player_set_, start_game_s2c,
+                      START_GAME_BROAD_CAST);
+            room_wait_queue_.push(cur_room);
+            UpdateTimeVal(cur_room->pre_tv_);
         } else {
             start_game_s2c.set_succeed(false);
             Send(start_game_s2c, START_GAME_BROAD_CAST);
-            room_queue_.push(cur_room);
         }
     }
     
@@ -471,7 +492,7 @@ void Server::ChangeRole() {
     if (!Deserialize(change_role_c2s)) {
         change_role_s2c.set_error(-1);
         Send(change_role_s2c, ROOM_CHANGE_ROLE_RET);
-        CloseClientFd();
+        CloseClientFd(cur_fd_);
         /*
             TODO: 客户端数据包出错，把它踢了
         */
@@ -484,7 +505,7 @@ void Server::ChangeRole() {
         change_role_s2c.set_error(NOT_IN_ROOM_ERROR);
         Send(change_role_s2c, ROOM_CHANGE_ROLE_RET);
         cout << "ChangeRole:: " << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-        CloseClientFd();
+        CloseClientFd(cur_fd_);
         /*
             TODO: 客户端不在房间但是发了房间有关包，把它踢了
                   可能是服务器出错了，也可能是客户端错了
@@ -505,7 +526,7 @@ void Server::LeaveRoom() {
         leave_room_s2c.set_error(NOT_IN_ROOM_ERROR);
         Send(leave_room_s2c, LEAVE_ROOM_RET);
         cout << "LeaveRoom:: " << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-        CloseClientFd();
+        CloseClientFd(cur_fd_);
         /*
             TODO: 客户端不在房间但是发了房间有关包，把它踢了
                   可能是服务器出错了，也可能是客户端错了
@@ -516,87 +537,118 @@ void Server::LeaveRoom() {
     Send(leave_room_s2c, LEAVE_ROOM_RET);
     Room *cur_room = id_to_room_[cur_player->GetRoomId()];
     cur_room->RemovePlayer(cur_player);
-    if (cur_room->GetCurRoomSize() <= 0) {
-        id_to_room_.erase(id_to_room_.find(cur_room->GetRoomId()));
-        delete cur_room;
+    if (cur_room->CheckNeedToDeleteRoom()) {
+        DeleteRoom(cur_room->GetRoomId());
         cur_room = nullptr;
     } else {
         GetRoomInfo(cur_room->GetRoomId());
     }
 }
 
-void Server::StartGame() {
-    StartGameS2C start_game_s2c = StartGameS2C();
-    int cur_uid = fd_to_uid_[cur_fd_];
-    Player *cur_player = uid_to_player_[cur_uid];
-    if (!cur_player->is_in_room || 
-        id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
-        start_game_s2c.set_error(NOT_IN_ROOM_ERROR);
-        Send(start_game_s2c, START_GAME_BROAD_CAST);
-        cout << "StartGame::" << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-        CloseClientFd();
-        /*
-            TODO: 客户端不在房间但是发了房间有关包，把它踢了
-                  可能是服务器出错了，也可能是客户端错了
-        */
+void Server::DeleteRoom(int room_id) {
+    if (id_to_room_.find(room_id) == id_to_room_.end()) {
         return ;
     }
-    Room *cur_room = id_to_room_[cur_player->GetRoomId()];
-    if(cur_room->GetOwnerUid() != cur_uid) {
-        start_game_s2c.set_error(NOT_OWNER_START_GAME);
-        Send(start_game_s2c, START_GAME_BROAD_CAST);
-        CloseClientFd();
-        /*
-            TODO: 不是房主但是发了开始游戏的包
-        */
-        return ;
-    }
-    if (cur_room->StartGame()) {
-        start_game_s2c.set_succeed(true);
-        BroadCast(cur_room->player_set_, start_game_s2c, START_GAME_BROAD_CAST);
-    } else {
-        start_game_s2c.set_succeed(false);
-        Send(start_game_s2c, START_GAME_BROAD_CAST);
-        room_queue_.push(cur_room);
-    }
+    Room *cur_room = id_to_room_[room_id];
+    id_to_room_.erase(id_to_room_.find(cur_room->GetRoomId()));
+    delete cur_room;
 }
+
+// void Server::StartGame() {
+//     StartGameS2C start_game_s2c = StartGameS2C();
+//     int cur_uid = fd_to_uid_[cur_fd_];
+//     Player *cur_player = uid_to_player_[cur_uid];
+//     if (!cur_player->is_in_room || 
+//         id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
+//         start_game_s2c.set_error(NOT_IN_ROOM_ERROR);
+//         Send(start_game_s2c, START_GAME_BROAD_CAST);
+//         cout << "StartGame::" << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
+//         CloseClientFd();
+//         /*
+//             TODO: 客户端不在房间但是发了房间有关包，把它踢了
+//                   可能是服务器出错了，也可能是客户端错了
+//         */
+//         return ;
+//     }
+//     Room *cur_room = id_to_room_[cur_player->GetRoomId()];
+//     if(cur_room->GetOwnerUid() != cur_uid) {
+//         start_game_s2c.set_error(NOT_OWNER_START_GAME);
+//         Send(start_game_s2c, START_GAME_BROAD_CAST);
+//         CloseClientFd();
+//         /*
+//             TODO: 不是房主但是发了开始游戏的包
+//         */
+//         return ;
+//     }
+//     if (cur_room->StartGame()) {
+//         start_game_s2c.set_succeed(true);
+//         start_game_s2c.set_floornumber(DEFAULT_FLOOR_NUMBER);
+//         start_game_s2c.set_seed(GenerateRandomNumber(DEFAULT_RANDOM_DIGIT));
+        
+//         BroadCast(cur_room->player_set_, start_game_s2c, START_GAME_BROAD_CAST);
+//     } else {
+//         start_game_s2c.set_succeed(false);
+//         Send(start_game_s2c, START_GAME_BROAD_CAST);
+//         room_queue_.push(cur_room);
+//     }
+// }
 
 void Server::HandleBattleInput() {
     BattleFrame battle_frame = BattleFrame();
     int cur_uid = fd_to_uid_[cur_fd_];
     Player *cur_player = uid_to_player_[cur_uid];
-    if (!cur_player->is_in_room ||
-        id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
-        battle_frame.set_error(NOT_IN_ROOM_ERROR);
-        Send(battle_frame, LEAVE_ROOM_RET);
-        cout << "HandleBattleFame:: " << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-        CloseClientFd();
-        /*
-            TODO: 客户端不在房间但是发了房间有关包，把它踢了
-                  可能是服务器出错了，也可能是客户端错了
-        */
-        return ;
-    }
+    // if (!cur_player->is_in_room ||
+    //     id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
+    //     battle_frame.set_error(NOT_IN_ROOM_ERROR);
+    //     Send(battle_frame, BATTLE_INPUT_RET);
+    //     cout << "HandleBattleFame:: " << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
+    //     CloseClientFd(cur_fd_);
+    //     /*
+    //         TODO: 客户端不在房间但是发了房间有关包，把它踢了
+    //               可能是服务器出错了，也可能是客户端错了
+    //     */
+    //     return ;
+    // }
     if (!Deserialize(cur_player->cur_battle_input_)) {
         battle_frame.set_error(-1);
         Send(battle_frame, BATTLE_INPUT_RET);
-        CloseClientFd();
+        CloseClientFd(cur_fd_);
         /*
             TODO: 客户端数据包出错，把它踢了
         */
         return ;
     }
+    cur_player->cur_battle_input_.set_uid(cur_player->GetUid());
 }
 
+void Server::CheckWaitRoom() {
+    while (!room_wait_queue_.empty() &&
+           CheckTimeInterval(room_wait_queue_.top()->pre_tv_, BEFORE_SYNC_WAIT_TIME)) {
+        Room *cur_room = room_wait_queue_.top();
+        room_wait_queue_.pop();
+        UpdateTimeVal(cur_room->pre_tv_);
+        room_sync_queue_.push(cur_room);
+    }
+}
+
+/*
+    TODO: 检测是否要删房间需要优化一下
+*/
+
 void Server::BroadCastBattleFrame() {
-    while (!room_queue_.empty() && CheckTimeInterval(room_queue_.top()->pre_tv_)) {
-        Room *cur_room = room_queue_.top();
-        room_queue_.pop();
+    while (!room_sync_queue_.empty() &&
+           CheckTimeInterval(room_sync_queue_.top()->pre_tv_, PER_FRAME_TIME)) {
+        Room *cur_room = room_sync_queue_.top();
+        room_sync_queue_.pop();
+        if (cur_room->CheckNeedToDeleteRoom()) {
+            DeleteRoom(cur_room->GetRoomId());
+            return ;
+        }
         BattleFrame battle_frame = BattleFrame();
         cur_room->CollectPlayerInput(battle_frame);
         BroadCast(cur_room->player_set_, battle_frame, BATTLE_FRAME_BROAD_CAST);
         UpdateTimeVal(cur_room->pre_tv_);
-        room_queue_.push(cur_room);
+        room_sync_queue_.push(cur_room);
     }
     
 }
@@ -604,14 +656,14 @@ void Server::BroadCastBattleFrame() {
 void Server::UpdateTimeVal(struct timeval &tv) {
     int ret = gettimeofday(&tv, NULL);
     if (ret == -1) {
-        printf("UpdateTimeVal Error: errno = %d, (%s)\n", errno, strerror(errno));
+        // printf("UpdateTimeVal Error: errno = %d, (%s)\n", errno, strerror(errno));
     }
 }
 
-bool Server::CheckTimeInterval(struct timeval &pre_tv) {
+bool Server::CheckTimeInterval(struct timeval &pre_tv, int time_interval) {
     UpdateTimeVal(cur_tv_);
     if ((cur_tv_.tv_sec * 1000000 + cur_tv_.tv_usec) -
-        (pre_tv.tv_sec * 1000000 + pre_tv.tv_usec) >= PER_FRAME_TIME) {
+        (pre_tv.tv_sec * 1000000 + pre_tv.tv_usec) >= time_interval) {
         UpdateTimeVal(pre_tv);
         return true;
     }
@@ -648,33 +700,42 @@ void Server::BroadCast(set<Player *, PlayerCmp> &player_set,
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set.begin(); it != player_set.end(); ++it) {
+        if (!(*it)->is_online) {
+            continue;
+        }
         int send_ret = send((*it)->GetClientFd(), cur_ret_buff_, 
                             cur_ret_msg_len_ + HEAD_SIZE, 0);
         if (send_ret == -1) {
-            printf("server send to fd: %d error, errno = %d\n",
-                send_ret, errno);
+             printf("server send to fd: %d error, errno = %d\n",
+                 send_ret, errno);
+            CloseClientFd((*it)->GetClientFd());
         }
     }
 }
 
-void Server::CloseClientFd() {
-    if (fd_to_buff_.find(cur_fd_) == fd_to_buff_.end()) {
+void Server::CloseClientFd(int fd) {
+    if (fd_to_buff_.find(fd) == fd_to_buff_.end()) {
         return ;
     }
     
-    if (fd_to_uid_.find(cur_fd_) != fd_to_uid_.end()) {
-        int cur_uid = fd_to_uid_[cur_fd_];
+    if (fd_to_uid_.find(fd) != fd_to_uid_.end()) {
+        int cur_uid = fd_to_uid_[fd];
         if (uid_to_player_.find(cur_uid) != uid_to_player_.end()) {
             Player *cur_player = uid_to_player_[cur_uid];
             if (cur_player->is_in_game) {
-                cur_player->is_sync_frame_ = false;
+                int room_id = cur_player->GetRoomId();
+                if (id_to_room_.find(room_id) != id_to_room_.end()) {
+                    Room *cur_room = id_to_room_[room_id];
+                    cur_room->RemovePlayer(cur_player);
+                }
+                cur_player->is_online = false;
             } else {
                 if (cur_player->is_in_room) {
                     LeaveRoom();
                 }
-                delete cur_player;
                 uid_to_player_.erase(uid_to_player_.find(cur_uid));
-                fd_to_uid_.erase(fd_to_uid_.find(cur_fd_));
+                delete cur_player;
+                fd_to_uid_.erase(fd_to_uid_.find(fd));
             }
             /*
                 TODO: 判断玩家状态来删除数据或更新信息
@@ -685,18 +746,19 @@ void Server::CloseClientFd() {
         }
     }
 
-    int close_ret = close(cur_fd_);
+    delete fd_to_buff_[fd];
+    fd_to_buff_.erase(fd_to_buff_.find(fd));
+    int close_ret = close(fd);
     if (close_ret == -1) {
-        printf("close socket: %d error, errno = %d\n", cur_fd_, errno);
+        printf("close socket: %d error, errno = %d\n", fd, errno);
         return ;
     }
-    printf("socket:%d, closed\n", cur_fd_);
-    delete fd_to_buff_[cur_fd_];
-    fd_to_buff_.erase(cur_fd_);
+    printf("socket:%d, closed\n", fd);
     
 }
 
 Server::Server(int _port) {
+    player_count_ = 0;
     port_ = PORT;
     cur_client_buff_ = new ClientBuff();
     cur_ret_buff_ = new char[BUFF_SIZE];
@@ -728,7 +790,7 @@ Server::~Server() {
 void Server::Run() {
     int listen_fd = socket(AF_INET, SOCK_STREAM, 0);    
     if(listen_fd == -1) {
-        printf("new server socket error, errno = %d\n", errno);
+        // printf("new server socket error, errno = %d\n", errno);
         return ;
     }
 
@@ -745,25 +807,25 @@ void Server::Run() {
     int bind_ret = bind(listen_fd, (struct sockaddr*)&listen_addr,
                         sizeof(listen_addr));
     if (bind_ret == -1) {
-        printf("bind error, errno = %d\n", errno);
+        // printf("bind error, errno = %d\n", errno);
         return ;
     } else {
-        printf("bind [0.0.0.0:%d] ok!\n", port_);
+        // printf("bind [0.0.0.0:%d] ok!\n", port_);
     }
 
     //listen
     int listen_ret = listen(listen_fd, 128);
     if (listen_ret == -1) {
-        printf("listen error, errno = %d\n", errno);
+        // printf("listen error, errno = %d\n", errno);
         return ;
     } else {
-        printf("start listening on socket fd [%d] ...\n", listen_fd);
+        // printf("start listening on socket fd [%d] ...\n", listen_fd);
     }
 
     //使用epoll实现非阻塞处理客户端请求
     int epoll_fd = epoll_create(1);
     if (epoll_fd == -1) {
-        printf("create epoll error, errno = %d\n", errno);
+        // printf("create epoll error, errno = %d\n", errno);
         return ;
     }
 
@@ -773,7 +835,7 @@ void Server::Run() {
 
     int ctl_ret = epoll_ctl(epoll_fd, EPOLL_CTL_ADD, listen_fd, &event);
     if(ctl_ret == -1) {
-        printf("add listen_fd epoll event error, errno = %d\n", errno);
+        // printf("add listen_fd epoll event error, errno = %d\n", errno);
         return ;
     }
 
@@ -787,7 +849,7 @@ void Server::Run() {
             int fd_events = events[i].events;
             //出错处理
             if (fd_events != EPOLLIN) {
-                printf("error fd: %d\n", fd);
+                // printf("error fd: %d\n", fd);
                 //CloseClientFd(fd);
                 continue;
             } else if (fd == listen_fd) {  //有新客户端的连接请求
@@ -795,16 +857,16 @@ void Server::Run() {
                 socklen_t client_addr_len = sizeof(client_addr);
                 int client_fd = accept(listen_fd, &client_addr, &client_addr_len);
                 if (client_fd == -1) {
-                    printf("new client socket error, errno = %d\n", errno);
+                    // printf("new client socket error, errno = %d\n", errno);
                     continue;
                 } else {
-                    printf("new socket:%d\n", client_fd);
+                    // printf("new socket:%d\n", client_fd);
                 }
                 event.data.fd = client_fd;
                 event.events = EPOLLIN;
                 int ctl_ret = epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &event);
                 if (ctl_ret == -1) {
-                    printf("add socket_fd: %d epoll event error\n", client_fd);
+                    // printf("add socket_fd: %d epoll event error\n", client_fd);
                     continue;
                 }
                 if (fd_to_buff_.find(client_fd) == fd_to_buff_.end()) {
@@ -817,6 +879,7 @@ void Server::Run() {
                 Recv();
             }
         }
+        CheckWaitRoom();
         BroadCastBattleFrame();
     }
     delete[] events;

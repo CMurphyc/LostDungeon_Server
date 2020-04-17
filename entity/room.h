@@ -4,6 +4,7 @@
 #include <set>
 #include <vector>
 #include <sys/time.h>
+#include "../config/tools.h"
 #include "../entity/player.h"
 #include "../data/client_buff.h"
 #include "../config/global_define.h"
@@ -15,6 +16,8 @@
 #include "../protobuf/BattleFrame.pb.h"
 #include "../protobuf/BattleInput.pb.h"
 #include "../protobuf/BattleInput.pb.h"
+#include "../protobuf/StartGameC2S.pb.h"
+#include "../protobuf/StartGameS2C.pb.h"
 using namespace std;
 
 class Room {
@@ -34,6 +37,7 @@ class Room {
         struct timeval pre_tv_;
         //需要广播的所有玩家
         set<Player*, PlayerCmp>player_set_;
+        StartGameS2C start_game_s2c;
 
         Room();
         Room(int id);
@@ -50,6 +54,7 @@ class Room {
         int GetCurRoomSize();
         bool StartGame();
         void CollectPlayerInput(BattleFrame &battle_frame);
+        bool CheckNeedToDeleteRoom();
 };
 
 //房间在小根堆中的比较，把已经开始游戏的以及上次广播时间小的房间排前面

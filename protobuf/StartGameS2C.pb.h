@@ -29,6 +29,7 @@
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
+#include "PlayerInfo.pb.h"
 // @@protoc_insertion_point(includes)
 
 namespace protobuf_StartGameS2C_2eproto {
@@ -136,6 +137,18 @@ class StartGameS2C : public ::google::protobuf::Message /* @@protoc_insertion_po
 
   // accessors -------------------------------------------------------
 
+  // repeated .PlayerInfo playersInfo = 5;
+  int playersinfo_size() const;
+  void clear_playersinfo();
+  static const int kPlayersInfoFieldNumber = 5;
+  const ::PlayerInfo& playersinfo(int index) const;
+  ::PlayerInfo* mutable_playersinfo(int index);
+  ::PlayerInfo* add_playersinfo();
+  ::google::protobuf::RepeatedPtrField< ::PlayerInfo >*
+      mutable_playersinfo();
+  const ::google::protobuf::RepeatedPtrField< ::PlayerInfo >&
+      playersinfo() const;
+
   // int32 error = 1;
   void clear_error();
   static const int kErrorFieldNumber = 1;
@@ -148,12 +161,27 @@ class StartGameS2C : public ::google::protobuf::Message /* @@protoc_insertion_po
   bool succeed() const;
   void set_succeed(bool value);
 
+  // int32 seed = 3;
+  void clear_seed();
+  static const int kSeedFieldNumber = 3;
+  ::google::protobuf::int32 seed() const;
+  void set_seed(::google::protobuf::int32 value);
+
+  // int32 floorNumber = 4;
+  void clear_floornumber();
+  static const int kFloorNumberFieldNumber = 4;
+  ::google::protobuf::int32 floornumber() const;
+  void set_floornumber(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:StartGameS2C)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::PlayerInfo > playersinfo_;
   ::google::protobuf::int32 error_;
   bool succeed_;
+  ::google::protobuf::int32 seed_;
+  ::google::protobuf::int32 floornumber_;
   mutable int _cached_size_;
   friend struct ::protobuf_StartGameS2C_2eproto::TableStruct;
   friend void ::protobuf_StartGameS2C_2eproto::InitDefaultsStartGameS2CImpl();
@@ -195,6 +223,61 @@ inline void StartGameS2C::set_succeed(bool value) {
   
   succeed_ = value;
   // @@protoc_insertion_point(field_set:StartGameS2C.succeed)
+}
+
+// int32 seed = 3;
+inline void StartGameS2C::clear_seed() {
+  seed_ = 0;
+}
+inline ::google::protobuf::int32 StartGameS2C::seed() const {
+  // @@protoc_insertion_point(field_get:StartGameS2C.seed)
+  return seed_;
+}
+inline void StartGameS2C::set_seed(::google::protobuf::int32 value) {
+  
+  seed_ = value;
+  // @@protoc_insertion_point(field_set:StartGameS2C.seed)
+}
+
+// int32 floorNumber = 4;
+inline void StartGameS2C::clear_floornumber() {
+  floornumber_ = 0;
+}
+inline ::google::protobuf::int32 StartGameS2C::floornumber() const {
+  // @@protoc_insertion_point(field_get:StartGameS2C.floorNumber)
+  return floornumber_;
+}
+inline void StartGameS2C::set_floornumber(::google::protobuf::int32 value) {
+  
+  floornumber_ = value;
+  // @@protoc_insertion_point(field_set:StartGameS2C.floorNumber)
+}
+
+// repeated .PlayerInfo playersInfo = 5;
+inline int StartGameS2C::playersinfo_size() const {
+  return playersinfo_.size();
+}
+inline const ::PlayerInfo& StartGameS2C::playersinfo(int index) const {
+  // @@protoc_insertion_point(field_get:StartGameS2C.playersInfo)
+  return playersinfo_.Get(index);
+}
+inline ::PlayerInfo* StartGameS2C::mutable_playersinfo(int index) {
+  // @@protoc_insertion_point(field_mutable:StartGameS2C.playersInfo)
+  return playersinfo_.Mutable(index);
+}
+inline ::PlayerInfo* StartGameS2C::add_playersinfo() {
+  // @@protoc_insertion_point(field_add:StartGameS2C.playersInfo)
+  return playersinfo_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::PlayerInfo >*
+StartGameS2C::mutable_playersinfo() {
+  // @@protoc_insertion_point(field_mutable_list:StartGameS2C.playersInfo)
+  return &playersinfo_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::PlayerInfo >&
+StartGameS2C::playersinfo() const {
+  // @@protoc_insertion_point(field_list:StartGameS2C.playersInfo)
+  return playersinfo_;
 }
 
 #ifdef __GNUC__

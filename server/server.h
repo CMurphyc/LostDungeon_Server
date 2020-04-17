@@ -17,6 +17,8 @@
 #include "../protobuf/BattleFrame.pb.h"
 #include "../protobuf/BattleInput.pb.h"
 #include "../protobuf/BattleInput.pb.h"
+#include "../protobuf/StartSyncC2S.pb.h"
+#include "../protobuf/StartSyncS2C.pb.h"
 #include "../protobuf/EnterRoomC2S.pb.h"
 #include "../protobuf/EnterRoomS2C.pb.h"
 #include "../protobuf/LeaveRoomC2S.pb.h"
@@ -42,6 +44,7 @@ class Server {
         int listen_fd_;
 
         //客户端相关数据
+        int player_count_;
         unordered_map<int, int>fd_to_uid_;
         unordered_map<int, Player *> uid_to_player_;
         ClientBuff *cur_client_buff_;
@@ -57,7 +60,8 @@ class Server {
         int available_room_id_;
         struct timeval cur_tv_;
         map<int, Room *>id_to_room_;
-        priority_queue<Room *, vector<Room *>, RoomCmp> room_queue_;
+        priority_queue<Room *, vector<Room *>, RoomCmp> room_sync_queue_;
+        priority_queue<Room *, vector<Room *>, RoomCmp> room_wait_queue_;
         
         void Recv();
         void Send(google::protobuf::Message &message, int msg_type);
@@ -76,6 +80,7 @@ class Server {
         int TmpLoginCheck(const LoginC2S &login_c2s);
         void TmpLogin();
         void CreateRoom();
+        void DeleteRoom(int room_id);
         void GetRoomList();
         void GetRoomInfo(int room_id);
         void EnterRoom();
@@ -84,10 +89,11 @@ class Server {
         void LeaveRoom();
         void StartGame();
         void HandleBattleInput();
+        void CheckWaitRoom();
         void BroadCastBattleFrame();
-        void CloseClientFd();
+        void CloseClientFd(int fd);
         void UpdateTimeVal(struct timeval &tv);
-        bool CheckTimeInterval(struct timeval &pre_tv);
+        bool CheckTimeInterval(struct timeval &pre_tv, int time_interval);
         bool CheckRoomLegality(int &cur_uid, Player *cur_player, Room *cur_room);
         void BroadCast(set<Player *, PlayerCmp> &player_set,
                        google::protobuf::Message &message,

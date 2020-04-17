@@ -8,7 +8,7 @@ Room::Room(int id) {
     is_start_ = false;
     room_id_ = id;
     cur_room_size_ = 0;
-    room_size_ = DEFAULE_ROOM_SIZE;
+    room_size_ = DEFAULT_ROOM_SIZE;
     frame_count_ = 0;
     pre_tv_ = {0, 0};
 }
@@ -29,11 +29,6 @@ bool Room::CheckRoomSize() {
 }
 
 void Room::AddPlayer(Player *player) {
-    if (player_set_.find(player) != player_set_.end()) {
-        cout << "player has already in room" << endl;
-    } else {
-        cout << "player is not in the room" << endl;
-    }
     if (player_set_.find(player) == player_set_.end()) {
         ++cur_room_size_;
         player->is_ready = false;
@@ -46,11 +41,6 @@ void Room::AddPlayer(Player *player) {
 }
 
 void Room::RemovePlayer(Player *player) {
-    if (player_set_.find(player) != player_set_.end()) {
-        cout << "player has already in room" << endl;
-    } else {
-        cout << "player is not in the room" << endl;
-    }
     if (player_set_.find(player) != player_set_.end()) {
         --cur_room_size_;
         player->is_in_room = false;
@@ -106,9 +96,12 @@ bool Room::StartGame() {
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
         if (!(*it)->is_ready && ((*it)->GetUid() != GetOwnerUid())) {
-
             return false;
         }
+    }
+    for (it = player_set_.begin(); it != player_set_.end(); ++it) {
+        (*it)->is_in_game = true;
+        (*it)->is_in_room = false;
     }
     is_start_ = true;
     return true;
@@ -116,9 +109,7 @@ bool Room::StartGame() {
 
 void Room::CollectPlayerInput(BattleFrame &battle_frame) {
     battle_frame.set_framenumber(++frame_count_);
-    /*
-        TODO: 设置随机数
-    */
+    battle_frame.set_randomcode(GenerateRandomNumber(DEFAULT_RANDOM_DIGIT));
     set<Player *, PlayerCmp>::iterator it;
     BattleInput *battle_input = nullptr;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
@@ -126,4 +117,17 @@ void Room::CollectPlayerInput(BattleFrame &battle_frame) {
         battle_input->CopyFrom((*it)->cur_battle_input_);
     }
     battle_frames.push_back(battle_frame);
+}
+
+bool Room::CheckNeedToDeleteRoom() {
+    if (GetCurRoomSize() <= 0 || player_set_.size() == 0) {
+        return true;
+    }
+    set<Player *, PlayerCmp>::iterator it;
+    for (it = player_set_.begin(); it != player_set_.end(); ++it) {
+        if ((*it)->is_online) {
+            return false;
+        }
+    }
+    return true;
 }

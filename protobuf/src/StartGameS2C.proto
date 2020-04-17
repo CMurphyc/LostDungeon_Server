@@ -1,6 +1,10 @@
 syntax = "proto3";
+import "PlayerInfo.proto";
 
 message StartGameS2C {
     int32 error = 1;
     bool succeed = 2;
+    int32 seed = 3;
+    int32 floorNumber = 4;
+    repeated PlayerInfo playersInfo = 5;
 }

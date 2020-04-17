@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message StartSyncS2C {
+    int32 error = 1;
+    bool succeed = 2;
+}

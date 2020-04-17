@@ -33,6 +33,7 @@ void InitDefaultsStartGameS2CImpl() {
 #else
   ::google::protobuf::internal::InitProtobufDefaults();
 #endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  protobuf_PlayerInfo_2eproto::InitDefaultsPlayerInfo();
   {
     void* ptr = &::_StartGameS2C_default_instance_;
     new (ptr) ::StartGameS2C();
@@ -56,6 +57,9 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, error_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, succeed_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, seed_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, floornumber_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, playersinfo_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::StartGameS2C)},
@@ -87,13 +91,17 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\022StartGameS2C.proto\".\n\014StartGameS2C\022\r\n\005"
-      "error\030\001 \001(\005\022\017\n\007succeed\030\002 \001(\010b\006proto3"
+      "\n\022StartGameS2C.proto\032\020PlayerInfo.proto\"s"
+      "\n\014StartGameS2C\022\r\n\005error\030\001 \001(\005\022\017\n\007succeed"
+      "\030\002 \001(\010\022\014\n\004seed\030\003 \001(\005\022\023\n\013floorNumber\030\004 \001("
+      "\005\022 \n\013playersInfo\030\005 \003(\0132\013.PlayerInfob\006pro"
+      "to3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 76);
+      descriptor, 163);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "StartGameS2C.proto", &protobuf_RegisterTypes);
+  ::protobuf_PlayerInfo_2eproto::AddDescriptors();
 }
 
 void AddDescriptors() {
@@ -112,9 +120,15 @@ struct StaticDescriptorInitializer {
 
 void StartGameS2C::InitAsDefaultInstance() {
 }
+void StartGameS2C::clear_playersinfo() {
+  playersinfo_.Clear();
+}
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int StartGameS2C::kErrorFieldNumber;
 const int StartGameS2C::kSucceedFieldNumber;
+const int StartGameS2C::kSeedFieldNumber;
+const int StartGameS2C::kFloorNumberFieldNumber;
+const int StartGameS2C::kPlayersInfoFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 StartGameS2C::StartGameS2C()
@@ -128,18 +142,19 @@ StartGameS2C::StartGameS2C()
 StartGameS2C::StartGameS2C(const StartGameS2C& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL),
+      playersinfo_(from.playersinfo_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&error_, &from.error_,
-    static_cast<size_t>(reinterpret_cast<char*>(&succeed_) -
-    reinterpret_cast<char*>(&error_)) + sizeof(succeed_));
+    static_cast<size_t>(reinterpret_cast<char*>(&floornumber_) -
+    reinterpret_cast<char*>(&error_)) + sizeof(floornumber_));
   // @@protoc_insertion_point(copy_constructor:StartGameS2C)
 }
 
 void StartGameS2C::SharedCtor() {
   ::memset(&error_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&succeed_) -
-      reinterpret_cast<char*>(&error_)) + sizeof(succeed_));
+      reinterpret_cast<char*>(&floornumber_) -
+      reinterpret_cast<char*>(&error_)) + sizeof(floornumber_));
   _cached_size_ = 0;
 }
 
@@ -180,9 +195,10 @@ void StartGameS2C::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  playersinfo_.Clear();
   ::memset(&error_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&succeed_) -
-      reinterpret_cast<char*>(&error_)) + sizeof(succeed_));
+      reinterpret_cast<char*>(&floornumber_) -
+      reinterpret_cast<char*>(&error_)) + sizeof(floornumber_));
   _internal_metadata_.Clear();
 }
 
@@ -218,6 +234,45 @@ bool StartGameS2C::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
                  input, &succeed_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 seed = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &seed_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 floorNumber = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(32u /* 32 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &floornumber_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated .PlayerInfo playersInfo = 5;
+      case 5: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_playersinfo()));
         } else {
           goto handle_unusual;
         }
@@ -260,6 +315,23 @@ void StartGameS2C::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->succeed(), output);
   }
 
+  // int32 seed = 3;
+  if (this->seed() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->seed(), output);
+  }
+
+  // int32 floorNumber = 4;
+  if (this->floornumber() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->floornumber(), output);
+  }
+
+  // repeated .PlayerInfo playersInfo = 5;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->playersinfo_size()); i < n; i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, this->playersinfo(static_cast<int>(i)), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -284,6 +356,24 @@ void StartGameS2C::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->succeed(), target);
   }
 
+  // int32 seed = 3;
+  if (this->seed() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->seed(), target);
+  }
+
+  // int32 floorNumber = 4;
+  if (this->floornumber() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->floornumber(), target);
+  }
+
+  // repeated .PlayerInfo playersInfo = 5;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->playersinfo_size()); i < n; i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        5, this->playersinfo(static_cast<int>(i)), deterministic, target);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
@@ -301,6 +391,17 @@ size_t StartGameS2C::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
+  // repeated .PlayerInfo playersInfo = 5;
+  {
+    unsigned int count = static_cast<unsigned int>(this->playersinfo_size());
+    total_size += 1UL * count;
+    for (unsigned int i = 0; i < count; i++) {
+      total_size +=
+        ::google::protobuf::internal::WireFormatLite::MessageSize(
+          this->playersinfo(static_cast<int>(i)));
+    }
+  }
+
   // int32 error = 1;
   if (this->error() != 0) {
     total_size += 1 +
@@ -311,6 +412,20 @@ size_t StartGameS2C::ByteSizeLong() const {
   // bool succeed = 2;
   if (this->succeed() != 0) {
     total_size += 1 + 1;
+  }
+
+  // int32 seed = 3;
+  if (this->seed() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->seed());
+  }
+
+  // int32 floorNumber = 4;
+  if (this->floornumber() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->floornumber());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -342,11 +457,18 @@ void StartGameS2C::MergeFrom(const StartGameS2C& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  playersinfo_.MergeFrom(from.playersinfo_);
   if (from.error() != 0) {
     set_error(from.error());
   }
   if (from.succeed() != 0) {
     set_succeed(from.succeed());
+  }
+  if (from.seed() != 0) {
+    set_seed(from.seed());
+  }
+  if (from.floornumber() != 0) {
+    set_floornumber(from.floornumber());
   }
 }
 
@@ -374,8 +496,11 @@ void StartGameS2C::Swap(StartGameS2C* other) {
 }
 void StartGameS2C::InternalSwap(StartGameS2C* other) {
   using std::swap;
+  playersinfo_.InternalSwap(&other->playersinfo_);
   swap(error_, other->error_);
   swap(succeed_, other->succeed_);
+  swap(seed_, other->seed_);
+  swap(floornumber_, other->floornumber_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }

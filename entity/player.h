@@ -20,7 +20,7 @@ class Player {
 
     public:
         //是否同步广播帧同步帧
-        bool is_sync_frame_;
+        bool is_online;
         //是否在房间内
         bool is_in_room;
         //在房间中是否准备了

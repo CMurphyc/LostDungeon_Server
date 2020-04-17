@@ -41,5 +41,6 @@
         "typeinfo": "cpp",
         "*.6319": "cpp"
     },
-    "remote.SSH.connectTimeout": 60
+    "remote.SSH.connectTimeout": 60,
+    "editor.fontSize": 15
 }
