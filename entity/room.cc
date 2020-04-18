@@ -37,17 +37,27 @@ void Room::AddPlayer(Player *player) {
         player->in_room_id_ = cur_room_size_;
         player->is_in_room = true;
         player_set_.insert(player);
+        cout << "player : " << player->GetUserName() << " enter room : " << room_id_ << " success" << endl;
     }
 }
 
-void Room::RemovePlayer(Player *player) {
+void Room::LeaveRoom(Player *player) {
     if (player_set_.find(player) != player_set_.end()) {
         --cur_room_size_;
         player->is_in_room = false;
         player->is_ready = false;
         player->SetRoomId(0);
         player->SetRole(ENGINEER);
+        player_set_.erase(player_set_.find(player));
         player->in_room_id_ = 99999;
+        ReSortRoom();
+        cout << "player : " << player->GetUserName() << " leave room : " << room_id_ << " success" << endl;
+    }
+}
+
+void Room::RemovePlayer(Player *player) {
+    if (player_set_.find(player) != player_set_.end()) {
+        --cur_room_size_;
         player_set_.erase(player_set_.find(player));
         ReSortRoom();
     }
@@ -73,7 +83,7 @@ int Room::GetOwnerUid() {
     return room_owner_uid_;
 }
 
-int Room::GetRoomId() {
+int Room::GetRoomId() const{
     return room_id_;
 }
 

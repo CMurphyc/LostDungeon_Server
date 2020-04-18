@@ -44,25 +44,18 @@ class Room {
         ~Room();
         bool CheckRoomSize();
         void AddPlayer(Player *player);
+        void LeaveRoom(Player *player);
         void RemovePlayer(Player *player);
         void ReSortRoom();
         void SetOwnerUid(int owner_uid);
         int GetOwnerUid();
-        int GetRoomId();
+        int GetRoomId() const;
         void SetRoomSize(int room_size);
         int GetRoomSize();
         int GetCurRoomSize();
         bool StartGame();
         void CollectPlayerInput(BattleFrame &battle_frame);
         bool CheckNeedToDeleteRoom();
-};
-
-//房间在小根堆中的比较，把已经开始游戏的以及上次广播时间小的房间排前面
-struct RoomCmp {
-    bool operator () (const Room *left, const Room *right) const {
-        return (left->pre_tv_.tv_sec * 1000000 + left->pre_tv_.tv_usec) <
-               (right->pre_tv_.tv_sec * 1000000 + right->pre_tv_.tv_usec);
-    }
 };
 
 #endif

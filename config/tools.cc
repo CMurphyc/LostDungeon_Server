@@ -1,7 +1,7 @@
 #include "../config/tools.h"
 
 unsigned int GenerateRandomNumber(int digit) {
-    if (digit == 0 || digit > 9) {
+    if (digit <= 0 || digit > 9) {
         return 0;
     }
     static default_random_engine random_engine(time(NULL));

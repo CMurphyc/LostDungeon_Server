@@ -60,8 +60,8 @@ class Server {
         int available_room_id_;
         struct timeval cur_tv_;
         map<int, Room *>id_to_room_;
-        priority_queue<Room *, vector<Room *>, RoomCmp> room_sync_queue_;
-        priority_queue<Room *, vector<Room *>, RoomCmp> room_wait_queue_;
+        queue<Room *> room_sync_queue_;
+        queue<Room *> room_wait_queue_;
         
         void Recv();
         void Send(google::protobuf::Message &message, int msg_type);
@@ -74,10 +74,10 @@ class Server {
         void HandleRecvPackage();
         void HandleMsg();
         bool Pack(google::protobuf::Message &message, int msg_type);
-        LoginS2C_LoginRet LoginCheck(const LoginC2S &login_c2s);
-        RegisterS2C_RegisterRet RegisterCheck(const LoginC2S &user);
-        void Login(int type);
-        int TmpLoginCheck(const LoginC2S &login_c2s);
+        // LoginS2C_LoginRet LoginCheck(const LoginC2S &login_c2s);
+        // RegisterS2C_RegisterRet RegisterCheck(const LoginC2S &user);
+        // void Login(int type);
+        // int TmpLoginCheck(const LoginC2S &login_c2s);
         void TmpLogin();
         void CreateRoom();
         void DeleteRoom(int room_id);

@@ -1,8 +1,13 @@
 #include "server.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-    Server server = Server(10000);
+    if (argc != 2) {
+        printf("input port error");
+        return 0;
+    }
+    int port = atoi(argv[1]);
+    Server server = Server(port);
     server.Run();
     return 0;
 }
