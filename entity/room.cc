@@ -31,11 +31,11 @@ bool Room::CheckRoomSize() {
 void Room::AddPlayer(Player *player) {
     if (player_set_.find(player) == player_set_.end()) {
         ++cur_room_size_;
-        player->is_ready = false;
+        player->is_ready_ = false;
         player->SetRole(ENGINEER);
         player->SetRoomId(room_id_);
         player->in_room_id_ = cur_room_size_;
-        player->is_in_room = true;
+        player->is_in_room_ = true;
         player_set_.insert(player);
         cout << "player : " << player->GetUserName() << " enter room : " << room_id_ << " success" << endl;
     }
@@ -44,8 +44,8 @@ void Room::AddPlayer(Player *player) {
 void Room::LeaveRoom(Player *player) {
     if (player_set_.find(player) != player_set_.end()) {
         --cur_room_size_;
-        player->is_in_room = false;
-        player->is_ready = false;
+        player->is_in_room_ = false;
+        player->is_ready_ = false;
         player->SetRoomId(0);
         player->SetRole(ENGINEER);
         player_set_.erase(player_set_.find(player));
@@ -105,13 +105,13 @@ bool Room::StartGame() {
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        if (!(*it)->is_ready && ((*it)->GetUid() != GetOwnerUid())) {
+        if (!(*it)->is_ready_ && ((*it)->GetUid() != GetOwnerUid())) {
             return false;
         }
     }
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        (*it)->is_in_game = true;
-        (*it)->is_in_room = false;
+        (*it)->is_in_game_ = true;
+        (*it)->is_in_room_ = false;
     }
     is_start_ = true;
     return true;
@@ -135,7 +135,7 @@ bool Room::CheckNeedToDeleteRoom() {
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        if ((*it)->is_online) {
+        if ((*it)->is_online_) {
             return false;
         }
     }

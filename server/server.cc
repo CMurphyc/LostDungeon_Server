@@ -24,6 +24,9 @@ void Server::Recv() {
         HandleRecvPackage();
     } else if (cur_recv_len_ == 0) {
         //close
+        /*
+            输出对方主动关闭
+        */
         CloseClientFd(cur_fd_);
     } else if (cur_recv_len_ == -1) {
         //这几个错误参数还可以继续进行读写
@@ -31,8 +34,8 @@ void Server::Recv() {
             return ;
         }
         CloseClientFd(cur_fd_);
-        // printf("recv failed, errno = %d, errno_message = %s\n",
-        //         errno, strerror(errno));
+        printf("recv failed, errno = %d, errno_message = %s\n",
+                errno, strerror(errno));
     }
 }
 
@@ -42,8 +45,8 @@ void Server::Send(google::protobuf::Message &message, int msg_type) {
     }
     int send_ret = send(cur_fd_, cur_ret_buff_, cur_ret_msg_len_ + HEAD_SIZE, 0);
     if (send_ret == -1) {
-        printf("server send to fd: %d error, errno = %d\n",
-            cur_fd_, errno);
+        printf("server send to fd: %d error, errno = %d, strerror : %s\n",
+            cur_fd_, errno, strerror(errno));
         CloseClientFd(cur_fd_);
         return ;
     } else {
@@ -52,16 +55,16 @@ void Server::Send(google::protobuf::Message &message, int msg_type) {
 }
 
 //int转byte
-void Server::IntToBytes(int n, char *bytes) {
-    bytes[0] = (char) (0xff & n);
-    bytes[1] = (char) ((0xff00 & n) >> 8);
-    bytes[2] = (char) ((0xff0000 & n) >> 16);
-    bytes[3] = (char) ((0xff000000 & n) >> 24);
+void Server::IntToBytes(int n, byte *bytes) {
+    bytes[0] = (byte) (0xff & n);
+    bytes[1] = (byte) ((0xff00 & n) >> 8);
+    bytes[2] = (byte) ((0xff0000 & n) >> 16);
+    bytes[3] = (byte) ((0xff000000 & n) >> 24);
     return ;
 }
 
 //byte转int
-int Server::BytesToInt(char* bytes) {
+int Server::BytesToInt(byte* bytes) {
     int n = bytes[0] & 0xFF;
     n |= ((bytes[1] << 8) & 0xFF00);
     n |= ((bytes[2] << 16) & 0xFF0000);
@@ -80,8 +83,8 @@ void Server::ParseHead() {
     cur_recv_msg_type_ = BytesToInt(cur_client_buff_->buff_ +
                                     cur_client_buff_->head_);
     cur_recv_msg_len_ = BytesToInt(cur_client_buff_->buff_ +
-                                    cur_client_buff_->head_ +
-                                    TYPE_SIZE);
+                                   cur_client_buff_->head_ +
+                                   TYPE_SIZE);
 }
 
 //处理接接收的包，并把用户缓冲区的数据拆包并解析，防止粘包
@@ -90,12 +93,18 @@ void Server::HandleRecvPackage() {
     int l = cur_client_buff_->head_, r = cur_client_buff_->tail_;
     while (l < r && l < BUFF_SIZE && r <= BUFF_SIZE) {
         int buff_len = r - cur_client_buff_->head_;
-        //数据长度不足包头长说明包不完整
+        // 数据长度不足包头长说明包不完整
         if (buff_len < 8) {
             break ;
         }
         ParseHead();
-        //数据长度不足一个包
+        // 包头数据有问题要把它close了
+        if (cur_recv_msg_type_ <= MIN_REQ_NUM || cur_recv_msg_type_ >= MAX_RET_NUM ||
+            cur_recv_msg_len_ < 0 || cur_recv_msg_len_ > BUFF_SIZE) {
+            CloseClientFd(cur_fd_);
+            break;
+        }
+        // 数据长度不足一个包
         if (buff_len < cur_recv_msg_len_ + HEAD_SIZE) {
             break ;
         }
@@ -139,6 +148,9 @@ void Server::HandleMsg() {
         case BATTLE_INPUT_REQ:
             HandleBattleInput();
             break;
+        default : 
+            cout << "recv a none type package" << endl;
+            CloseClientFd(cur_fd_);
     }
 
 }
@@ -261,12 +273,21 @@ int Server::TmpLoginCheck(const LoginC2S &login_c2s) {
 void Server::TmpLogin() {
     LoginS2C login_s2c = LoginS2C();
     LoginC2S login_c2s = LoginC2S();
+    // 同一客户端不能登录多个账号
+    if (fd_to_uid_.find(cur_fd_) != fd_to_uid_.end()) {
+        login_s2c.set_loginret(LoginS2C_LoginRet_ALREADY_ONLINE);
+        Send(login_s2c, LOGIN_RET);
+        cout << "fd : " << cur_fd_ << " is already online, login failed" << endl; 
+        return ;
+    }
+    // 服务器满了
     if (uid_to_player_.size() >= MAX_PLAYER_NUMBER) {
         login_s2c.set_loginret(LoginS2C_LoginRet_SERVER_FULL);
         Send(login_s2c, LOGIN_RET);
+        cout << "server player full, fd : " << cur_fd_ << "login failed" << endl;
         return ;
     }
-    //反序列化
+    //反序列化出错
     if (!Deserialize(login_c2s)) {
         login_s2c.set_error(DESERIALIZE_ERROR);
         Send(login_s2c, LOGIN_RET);
@@ -311,33 +332,64 @@ void Server::TmpLogin() {
     fd_to_uid_[cur_fd_] = cur_uid;
     login_s2c.set_loginret(LoginS2C_LoginRet_LOGIN_SUCCESS);
     Send(login_s2c, LOGIN_RET);
+    cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " login success" << endl;
 }
+
+bool Server::SecurelyGetPlayerByFd(Player *&player, int fd) {
+    if (fd_to_uid_.find(fd) == fd_to_uid_.end()) {
+        return false;
+    }
+    int cur_uid = fd_to_uid_[fd];
+    if (uid_to_player_.find(cur_uid) == uid_to_player_.end()) {
+        return false;
+    }
+    player = uid_to_player_[cur_uid];
+    return true;
+}
+
+bool Server::SecurelyGetPlayerByUid(Player *&player, int uid) {
+    if (uid_to_player_.find(uid) == uid_to_player_.end()) {
+        return false;
+    }
+    player = uid_to_player_[uid];
+    return true;
+}
+
+bool Server::SecurelyGetRoomById(Room *&room, int room_id) {
+    if (id_to_room_.find(room_id) == id_to_room_.end()) {
+        return false;
+    }
+    room = id_to_room_[room_id];
+    return true;
+}
+
+/*
+    TODO: 同一出错和越界判断可以参考CreateRoom函数
+          有些错误要不就不回包了，比如反序列化出错
+          然后可以写俩函数，一个安全获取玩家，一个安全获取房间
+*/
 
 void Server::CreateRoom() {
     CreateRoomS2C create_room_s2c = CreateRoomS2C();
     CreateRoomC2S create_room_c2s = CreateRoomC2S();
-    if (id_to_room_.size() >= MAX_ROOM_NUMBER) {
-        create_room_s2c.set_succeed(false);
-        Send(create_room_s2c, CREATE_ROOM_RET);
+    Player *cur_player = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !Deserialize(create_room_c2s)) {
+        CloseClientFd(cur_fd_);
         return ;
     }
-    if (!Deserialize(create_room_c2s)) {
-        create_room_s2c.set_error(DESERIALIZE_ERROR);
+    if (cur_player->is_in_room_ || id_to_room_.size() >= MAX_ROOM_NUMBER) {
+        create_room_s2c.set_succeed(false);
         Send(create_room_s2c, CREATE_ROOM_RET);
-        CloseClientFd(cur_fd_);
-        /*
-            TODO: 客户端数据包出错，把它踢了
-        */
         return ;
     }
     ++available_room_id_;
     id_to_room_[available_room_id_] = new Room(available_room_id_);
     Room *cur_room = id_to_room_[available_room_id_];
-    int cur_uid = fd_to_uid_[cur_fd_];
-    cur_room->SetOwnerUid(cur_uid);
-    Player *cur_player = uid_to_player_[cur_uid];
+    cur_room->SetOwnerUid(cur_player->GetUid());
     cur_room->AddPlayer(cur_player);
     GetRoomInfo(cur_room->GetRoomId());
+    cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " create room : " << cur_room->GetRoomId() << " success" << endl;
 }
 
 void Server::GetRoomList() {
@@ -360,27 +412,11 @@ void Server::GetRoomList() {
 */
 
 void Server::GetRoomInfo(int room_id) {
-    /*
-    int cur_uid = fd_to_uid_[cur_fd_];
-    Player *cur_player = uid_to_player_[cur_uid];
-    if (!cur_player->is_in_room) {
-        get_room_info_s2c.set_succeed(false);
-        get_room_info_s2c.set_error(NOT_IN_ROOM_ERROR);
-        Send(get_room_info_s2c, GET_ROOM_INFO_BROAD_CAST);
-        cout << "GetRoomInfo:: playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-        CloseClientFd();
-        
-            TODO: 客户端不在房间但是发了房间有关包，把它踢了
-                  可能是服务器出错了，也可能是客户端错了
-        
-        return ;
-    }
-    */
-    if (id_to_room_.find(room_id) == id_to_room_.end()) {
-        return ;
-    }
     GetRoomInfoS2C get_room_info_s2c = GetRoomInfoS2C();
-    Room *cur_room = id_to_room_[room_id];
+    Room *cur_room = nullptr;
+    if (!SecurelyGetRoomById(cur_room, room_id)) {
+        return ;
+    }
     PlayerInfo *player_info = nullptr;
     Player *cur_player = nullptr;
     set<Player *, PlayerCmp>::iterator it;
@@ -390,7 +426,7 @@ void Server::GetRoomInfo(int room_id) {
         player_info->set_playerid(cur_player->GetUid());
         player_info->set_username(cur_player->GetUserName());
         player_info->set_role(cur_player->GetRole());
-        player_info->set_isready(cur_player->is_ready);
+        player_info->set_isready(cur_player->is_ready_);
     }
     get_room_info_s2c.set_roomownerid(cur_room->GetOwnerUid());
     get_room_info_s2c.set_roomid(cur_room->GetRoomId());
@@ -400,56 +436,56 @@ void Server::GetRoomInfo(int room_id) {
 
 void Server::EnterRoom() {
     EnterRoomS2C enter_room_s2c = EnterRoomS2C();
-    GetRoomInfoS2C get_room_info_s2c = GetRoomInfoS2C();
     EnterRoomC2S enter_room_c2s = EnterRoomC2S();
-    if (!Deserialize(enter_room_c2s)) {
-        get_room_info_s2c.set_error(DESERIALIZE_ERROR);
-        Send(get_room_info_s2c, ENTER_ROOM_RET);
+    Player *cur_player = nullptr;
+    Room *cur_room = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !Deserialize(enter_room_c2s) ||
+        !SecurelyGetRoomById(cur_room, enter_room_c2s.roomid())) {
         CloseClientFd(cur_fd_);
-        /*
-            TODO: 客户端数据包出错，把它踢了
-        */
         return ;
     }
-    Player *cur_player = uid_to_player_[fd_to_uid_[cur_fd_]];
-    int cur_room_id = enter_room_c2s.roomid();
-    cout << "player : " << cur_player->GetUserName() << " want to enter room : " << cur_room_id << endl;
-    if (id_to_room_.find(cur_room_id) == id_to_room_.end() ||
-        !id_to_room_[cur_room_id]->CheckRoomSize() ||
-        id_to_room_[cur_room_id]->is_start_) {
-        get_room_info_s2c.set_succeed(false);
+    // if (!Deserialize(enter_room_c2s)) {
+    //     enter_room_s2c.set_error(DESERIALIZE_ERROR);
+    //     Send(enter_room_s2c, ENTER_ROOM_RET);
+    //     CloseClientFd(cur_fd_);
+    //     /*
+    //         TODO: 客户端数据包出错，把它踢了
+    //     */
+    //     return ;
+    // }
+    cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " want to enter room : " << cur_room->GetRoomId() << endl;
+    if (cur_player->is_in_room_ ||
+        !cur_room->CheckRoomSize() ||
+        cur_room->is_start_) {
+        enter_room_s2c.set_error(ALREADY_IN_ROOM_ERROR);
         Send(enter_room_s2c, ENTER_ROOM_RET);
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " enter room : " << cur_room->GetRoomId() << " failed" << endl;
         return ;
     }
-    Room *cur_room = id_to_room_[cur_room_id];
     cur_room->AddPlayer(cur_player);
-    GetRoomInfo(cur_room_id);
+    GetRoomInfo(cur_room->GetRoomId());
 }
 
 void Server::PlayerReady() {
     PlayerReadyS2C player_ready_s2c = PlayerReadyS2C();
-    int cur_uid = fd_to_uid_[cur_fd_];
-    Player *cur_player = uid_to_player_[cur_uid];
-    /*
-        TODO: id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()
-              加到别的地方
-    */
-    if (!cur_player->is_in_room ||
-        id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
-        player_ready_s2c.set_error(NOT_IN_ROOM_ERROR);
-        Send(player_ready_s2c, PLAYER_READY_RET);
-        // cout << "PlayerReady:: " << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
+    Player *cur_player = nullptr;
+    Room *cur_room = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
         CloseClientFd(cur_fd_);
-        /*
-            TODO: 客户端不在房间但是发了房间有关包，把它踢了
-                  可能是服务器出错了，也可能是客户端错了
-        */
         return ;
     }
-    Room *cur_room = id_to_room_[cur_player->GetRoomId()];
-    if (cur_uid != cur_room->GetOwnerUid()) {
-        cur_player->is_ready = !cur_player->is_ready;
+    if (!cur_player->is_in_room_) {
+        player_ready_s2c.set_error(NOT_IN_ROOM_ERROR);
+        Send(player_ready_s2c, PLAYER_READY_RET);
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change status failed because player is not in room"<< endl;
+        return ;
+    }
+    if (cur_player->GetUid() != cur_room->GetOwnerUid()) {
+        cur_player->is_ready_ = !cur_player->is_ready_;
         GetRoomInfo(cur_room->GetRoomId());
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change status : " << cur_player->is_ready_ << endl;
     } else {
         StartGameS2C start_game_s2c = StartGameS2C();
         if (cur_room->StartGame()) {
@@ -470,9 +506,11 @@ void Server::PlayerReady() {
                       START_GAME_BROAD_CAST);
             UpdateTimeVal(cur_room->pre_tv_);
             room_wait_queue_.push(cur_room);
+            cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start game success" << endl;
         } else {
             start_game_s2c.set_succeed(false);
             Send(start_game_s2c, START_GAME_BROAD_CAST);
+            cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start game failed" << endl;
         }
     }
     
@@ -481,54 +519,41 @@ void Server::PlayerReady() {
 void Server::ChangeRole() {
     ChangeRoleS2C change_role_s2c = ChangeRoleS2C();
     ChangeRoleC2S change_role_c2s = ChangeRoleC2S();
-    if (!Deserialize(change_role_c2s)) {
-        change_role_s2c.set_error(-1);
-        Send(change_role_s2c, ROOM_CHANGE_ROLE_RET);
+    Player *cur_player = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !Deserialize(change_role_c2s)) {
         CloseClientFd(cur_fd_);
-        /*
-            TODO: 客户端数据包出错，把它踢了
-        */
         return ;
     }
-    int cur_uid = fd_to_uid_[cur_fd_];
-    Player *cur_player = uid_to_player_[cur_uid];
-    if (!cur_player->is_in_room ||
+    if (!cur_player->is_in_room_ ||
         id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
         change_role_s2c.set_error(NOT_IN_ROOM_ERROR);
         Send(change_role_s2c, ROOM_CHANGE_ROLE_RET);
-        // cout << "ChangeRole:: " << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-        CloseClientFd(cur_fd_);
-        /*
-            TODO: 客户端不在房间但是发了房间有关包，把它踢了
-                  可能是服务器出错了，也可能是客户端错了
-        */
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change role failed, because player is not in room "<< endl;
         return ;
     }
     cur_player->SetRole(change_role_c2s.role());
-
     GetRoomInfo(cur_player->GetRoomId());
+    cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change role : " << cur_player->GetRole() << endl;
 }
 
 void Server::LeaveRoom() {
     LeaveRoomS2C leave_room_s2c = LeaveRoomS2C();
-    int cur_uid = fd_to_uid_[cur_fd_];
-    Player *cur_player = uid_to_player_[cur_uid];
-    if (!cur_player->is_in_room || 
-        id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
+    Player *cur_player = nullptr;
+    Room *cur_room = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
+        return ;
+    }
+    if (!cur_player->is_in_room_) {
         leave_room_s2c.set_error(NOT_IN_ROOM_ERROR);
         Send(leave_room_s2c, LEAVE_ROOM_RET);
-        // cout << "LeaveRoom:: " << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-        CloseClientFd(cur_fd_);
-        /*
-            TODO: 客户端不在房间但是发了房间有关包，把它踢了
-                  可能是服务器出错了，也可能是客户端错了
-        */
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " leave room failed, because player is not in room" << endl;
         return ;
     }
     leave_room_s2c.set_succeed(true);
     Send(leave_room_s2c, LEAVE_ROOM_RET);
-    Room *cur_room = id_to_room_[cur_player->GetRoomId()];
-    cout << "player : " << cur_player->GetUserName() << " want to leave room : " << cur_room->GetRoomId() << endl;
+    cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " want to leave room : " << cur_room->GetRoomId() << endl;
     cur_room->LeaveRoom(cur_player);
     if (cur_room->CheckNeedToDeleteRoom()) {
         DeleteRoom(cur_room->GetRoomId());
@@ -539,19 +564,22 @@ void Server::LeaveRoom() {
 }
 
 void Server::DeleteRoom(int room_id) {
-    if (id_to_room_.find(room_id) == id_to_room_.end()) {
+    Room *cur_room = nullptr;
+    if (!SecurelyGetRoomById(cur_room, room_id)) {
+        cout << "delete room " << " error, because this room is not exist" << endl;
         return ;
     }
-    Room *cur_room = id_to_room_[room_id];
+    cout << "room id : " << cur_room->GetRoomId() << " has been deleted" << endl;
     id_to_room_.erase(id_to_room_.find(cur_room->GetRoomId()));
     delete cur_room;
+    cur_room = nullptr;
 }
 
 // void Server::StartGame() {
 //     StartGameS2C start_game_s2c = StartGameS2C();
 //     int cur_uid = fd_to_uid_[cur_fd_];
 //     Player *cur_player = uid_to_player_[cur_uid];
-//     if (!cur_player->is_in_room || 
+//     if (!cur_player->is_in_room_ || 
 //         id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
 //         start_game_s2c.set_error(NOT_IN_ROOM_ERROR);
 //         Send(start_game_s2c, START_GAME_BROAD_CAST);
@@ -587,34 +615,19 @@ void Server::DeleteRoom(int room_id) {
 // }
 
 void Server::HandleBattleInput() {
-    BattleFrame battle_frame = BattleFrame();
-    int cur_uid = fd_to_uid_[cur_fd_];
-    Player *cur_player = uid_to_player_[cur_uid];
-    // if (!cur_player->is_in_room ||
-    //     id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
-    //     battle_frame.set_error(NOT_IN_ROOM_ERROR);
-    //     Send(battle_frame, BATTLE_INPUT_RET);
-    //     cout << "HandleBattleFame:: " << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-    //     CloseClientFd(cur_fd_);
-    //     /*
-    //         TODO: 客户端不在房间但是发了房间有关包，把它踢了
-    //               可能是服务器出错了，也可能是客户端错了
-    //     */
-    //     return ;
-    // }
-    if (!Deserialize(cur_player->cur_battle_input_)) {
-        battle_frame.set_error(-1);
-        Send(battle_frame, BATTLE_INPUT_RET);
+    Player *cur_player = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !Deserialize(cur_player->cur_battle_input_)) {
         CloseClientFd(cur_fd_);
-        /*
-            TODO: 客户端数据包出错，把它踢了
-        */
+        return ;
+    }
+    BattleFrame battle_frame = BattleFrame();
+    if (!cur_player->is_in_game_) {
+        battle_frame.set_error(NOT_IN_GAME_ERROR);
+        Send(battle_frame, BATTLE_INPUT_RET);
         return ;
     }
     cur_player->cur_battle_input_.set_uid(cur_player->GetUid());
-    // if (cur_player->cur_battle_input_.ByteSize() != 0) {
-    //     cur_player->cur_battle_input_.PrintDebugString();
-    // }
 }
 
 void Server::CheckWaitRoom() {
@@ -631,6 +644,7 @@ void Server::CheckWaitRoom() {
         }
         UpdateTimeVal(cur_room->pre_tv_);
         room_sync_queue_.push(cur_room);
+        cout << "room id : " << cur_room->GetRoomId() << " start sync" << endl;
     }
 }
 
@@ -640,7 +654,7 @@ void Server::CheckWaitRoom() {
 
 void Server::BroadCastBattleFrame() {
     if (!room_sync_queue_.empty() &&
-           CheckTimeInterval(room_sync_queue_.front()->pre_tv_, PER_FRAME_TIME)) {
+        CheckTimeInterval(room_sync_queue_.front()->pre_tv_, PER_FRAME_TIME)) {
         Room *cur_room = room_sync_queue_.front();
         room_sync_queue_.pop();
         if (cur_room->CheckNeedToDeleteRoom()) {
@@ -659,7 +673,7 @@ void Server::BroadCastBattleFrame() {
 void Server::UpdateTimeVal(struct timeval &tv) {
     int ret = gettimeofday(&tv, NULL);
     if (ret == -1) {
-        // printf("UpdateTimeVal Error: errno = %d, (%s)\n", errno, strerror(errno));
+        printf("UpdateTimeVal Error: errno = %d, (%s)\n", errno, strerror(errno));
     }
 }
 
@@ -673,28 +687,6 @@ bool Server::CheckTimeInterval(struct timeval &pre_tv, int time_interval) {
     return false;
 }
 
-/*
-    TODO: 写一个通用的判断是否可能越界的函数(现在只有房间)
-
-bool Server::CheckRoomLegality() {
-    if (fd_to_uid_.find(cur_fd_) == fd_to_uid_.end()) {
-        return false;
-    }
-    int cur_uid = fd_to_uid_[cur_fd_];
-    if (uid_to_player_.find(cur_uid) == uid_to_player_.end()) {
-        return false;
-    }
-    Player *cur_player = uid_to_player_[cur_uid];
-   if (cur_player->is_in_room) {
-       int cur_room_id = cur_player->GetRoomId();
-       if (id_to_room_.find(cur_room_id) == id_to_room_.end()) {
-           return false;
-       }
-   }
-   return true;
-}
-*/
-
 void Server::BroadCast(set<Player *, PlayerCmp> &player_set,
                        google::protobuf::Message &message,
                        int msg_type) {
@@ -703,15 +695,15 @@ void Server::BroadCast(set<Player *, PlayerCmp> &player_set,
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set.begin(); it != player_set.end();) {
-        if (!(*it)->is_online) {
+        if (!(*it)->is_online_) {
             ++it;
             continue;
         }
         int send_ret = send((*it)->GetClientFd(), cur_ret_buff_, 
                             cur_ret_msg_len_ + HEAD_SIZE, 0);
         if (send_ret == -1) {
-             printf("server broadcast to fd: %d error, errno = %d\n",
-                 (*it)->GetClientFd(), errno);
+            printf("server broadcast to fd: %d error, errno = %d\n",
+                    (*it)->GetClientFd(), errno);
             set<Player *, PlayerCmp>::iterator tmp = it;
             ++it;
             CloseClientFd((*tmp)->GetClientFd());
@@ -725,16 +717,18 @@ void Server::CloseClientFd(int fd) {
     if (fd_to_buff_.find(fd) == fd_to_buff_.end()) {
         return ;
     }
-    
-    if (fd_to_uid_.find(fd) != fd_to_uid_.end()) {
-        int cur_uid = fd_to_uid_[fd];
-        if (uid_to_player_.find(cur_uid) != uid_to_player_.end()) {
-            Player *cur_player = uid_to_player_[cur_uid];
-            int room_id = cur_player->GetRoomId();
-            if (id_to_room_.find(room_id) != id_to_room_.end()) {
-                Room *cur_room = id_to_room_[room_id];
-                cur_room->RemovePlayer(cur_player);
-                cur_player->is_online = false;
+    Player *cur_player = nullptr;
+    Room *cur_room = nullptr;
+    /*
+        TODO: 判断玩家状态来删除数据或更新信息
+            (在房间中的话要广播给房间内所有客户端这人离开了房间，更新is_in_room_)
+            (不在房间中或者上面的情况，要删除该Player信息)
+            (在游戏中的话更新它的is_online，但要保留Player信息)
+    */
+    if (SecurelyGetPlayerByFd(cur_player, fd)) {
+        if (SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
+            cur_room->RemovePlayer(cur_player);
+            if (!cur_room->is_start_) {
                 if (cur_room->CheckNeedToDeleteRoom()) {
                     DeleteRoom(cur_room->GetRoomId());
                     cur_room = nullptr;
@@ -742,18 +736,11 @@ void Server::CloseClientFd(int fd) {
                     GetRoomInfo(cur_room->GetRoomId());
                 }
             }
-            uid_to_player_.erase(uid_to_player_.find(cur_uid));
-            delete cur_player;
-            fd_to_uid_.erase(fd_to_uid_.find(fd));
-            /*
-                TODO: 判断玩家状态来删除数据或更新信息
-                    (在房间中的话要广播给房间内所有客户端这人离开了房间，更新is_in_room)
-                    (不在房间中或者上面的情况，要删除该Player信息)
-                    (在游戏中的话更新它的is_sync_frame，但要保留Player信息)
-            */
         }
+        uid_to_player_.erase(uid_to_player_.find(cur_player->GetUid()));
+        delete cur_player;
+        fd_to_uid_.erase(fd_to_uid_.find(fd));
     }
-
     delete fd_to_buff_[fd];
     fd_to_buff_.erase(fd_to_buff_.find(fd));
     int close_ret = close(fd);
@@ -762,17 +749,22 @@ void Server::CloseClientFd(int fd) {
         return ;
     }
     printf("socket:%d, closed\n", fd);
-    
 }
 
 Server::Server(int _port) {
     player_count_ = 0;
     port_ = _port;
     cur_client_buff_ = new ClientBuff();
-    cur_ret_buff_ = new char[BUFF_SIZE];
+    cur_ret_buff_ = new byte[BUFF_SIZE];
     fd_to_buff_.clear();
     cur_ret_msg_ = nullptr;
     available_room_id_ = 0;
+    cur_fd_ = 0;
+    cur_recv_len_ = 0;
+    cur_recv_msg_len_ = 0;
+    cur_recv_msg_type_ = 0;
+    cur_ret_msg_len_ = 0;
+    cur_ret_msg_type_ = 0;
 }
 
 Server::~Server() {
@@ -879,7 +871,7 @@ void Server::Run() {
                 }
                 if (fd_to_buff_.find(client_fd) == fd_to_buff_.end()) {
                     fd_to_buff_.insert(
-                      pair<int, ClientBuff*>(client_fd, new ClientBuff(client_fd)));
+                      pair<int, ClientBuff*>(client_fd, new ClientBuff(client_fd)));   
                 }
             } else {
                 cur_fd_ = fd;

@@ -60,6 +60,8 @@
 #define BATTLE_INPUT_RET 150
 //广播帧的信号
 #define BATTLE_FRAME_BROAD_CAST 151
+#define MIN_REQ_NUM 0
+#define MAX_RET_NUM 200
 
 #define BEFORE_SYNC_WAIT_TIME 3000000
 #define PER_FRAME_TIME 50000
@@ -68,6 +70,21 @@
 //错误信息
 #define DESERIALIZE_ERROR -1
 #define NOT_IN_ROOM_ERROR -2
-#define NOT_OWNER_START_GAME -3
+#define ALREADY_IN_ROOM_ERROR -3
+#define NOT_OWNER_START_GAME -4
+#define NOT_IN_GAME_ERROR -5
+
+//byte定义
+typedef unsigned char byte;
+
+//log输出
+#define BIG_DIVIDER "==============================="
+#define SMALL_DIVIDER "-------------------------------"
+
+enum LogType {
+    NORMAL,
+    ERROR,
+    STATISTICS
+};
 
 #endif

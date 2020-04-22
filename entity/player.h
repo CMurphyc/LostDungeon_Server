@@ -20,13 +20,13 @@ class Player {
 
     public:
         //是否同步广播帧同步帧
-        bool is_online;
+        bool is_online_;
         //是否在房间内
-        bool is_in_room;
+        bool is_in_room_;
         //在房间中是否准备了
-        bool is_ready;
+        bool is_ready_;
         //是否在游戏中
-        bool is_in_game;
+        bool is_in_game_;
         //在房间内的id
         int in_room_id_;
         //玩家当前帧操作

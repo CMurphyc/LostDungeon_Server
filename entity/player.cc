@@ -7,10 +7,10 @@ Player::Player() {
 Player::Player(int uid) {
     uid_ = uid;
     in_room_id_ = 99999;
-    is_online = true;
-    is_in_room = false;
-    is_ready = false;
-    is_in_game = false;
+    is_online_ = true;
+    is_in_room_ = false;
+    is_ready_ = false;
+    is_in_game_ = false;
     role_ = ENGINEER;
 }
 

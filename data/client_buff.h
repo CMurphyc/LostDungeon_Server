@@ -1,9 +1,11 @@
 #ifndef DATA_CLIENT_BUFF_H_
 #define DATA_CLIENT_BUFF_H_
+#include "../config/global_define.h"
+
 
 class ClientBuff {
   public:
-    char *buff_;
+    byte *buff_;
     //缓冲区头
     int head_;
     //缓冲区尾(最后一个数据+1的位置)

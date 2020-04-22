@@ -48,7 +48,7 @@ class Server {
         unordered_map<int, int>fd_to_uid_;
         unordered_map<int, Player *> uid_to_player_;
         ClientBuff *cur_client_buff_;
-        char *cur_ret_buff_;
+        byte *cur_ret_buff_;
         int cur_fd_;
         int cur_recv_len_;
         int cur_recv_msg_len_, cur_recv_msg_type_;
@@ -65,8 +65,8 @@ class Server {
         
         void Recv();
         void Send(google::protobuf::Message &message, int msg_type);
-        void IntToBytes(int n, char *bytes);
-        int BytesToInt(char *bytes);
+        void IntToBytes(int n, byte *bytes);
+        int BytesToInt(byte *bytes);
         bool Serialize(google::protobuf::Message &message);
         bool Deserialize(google::protobuf::Message &message);
         void AddHead();
@@ -98,6 +98,9 @@ class Server {
         void BroadCast(set<Player *, PlayerCmp> &player_set,
                        google::protobuf::Message &message,
                        int msg_type);
+        bool SecurelyGetPlayerByFd(Player *&player, int fd);
+        bool SecurelyGetPlayerByUid(Player *&player, int uid);
+        bool SecurelyGetRoomById(Room *&room, int room_id);
 
     public:
         Server(int _port);
