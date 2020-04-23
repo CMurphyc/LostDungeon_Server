@@ -788,7 +788,7 @@ Server::~Server() {
 
 
 void Server::Run() {
-    int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
+    int listen_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
     if(listen_fd == -1) {
         // printf("new server socket error, errno = %d\n", errno);
         return ;
@@ -855,7 +855,7 @@ void Server::Run() {
             } else if (fd == listen_fd) {  //有新客户端的连接请求
                 struct sockaddr client_addr;
                 socklen_t client_addr_len = sizeof(client_addr);
-                int client_fd = accept(listen_fd, &client_addr, &client_addr_len);
+                int client_fd = accept4(listen_fd, &client_addr, &client_addr_len, SOCK_NONBLOCK);
                 if (client_fd == -1) {
                     // printf("new client socket error, errno = %d\n", errno);
                     continue;
