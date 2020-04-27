@@ -11,7 +11,7 @@
 using namespace std;
 
 #define MAXLINE 80
-#define SERV_PORT 10001
+#define SERV_PORT 10000
 #define BIG_DIVIDER "==========================================="
 #define SMALL_DIVIDER "-------------------------------------------"
 
@@ -64,38 +64,39 @@ unsigned int GenerateRandomNumber(int digit) {
 
 int main(int argc, char *argv[])
 {
-    int tot = 100;
+    int tot = 1000;
+    char msg[10][1000];
+    IntToBytes(1, msg[0]);
+    IntToBytes(0, msg[0]+4);
+    
     while(tot--) {
-        cout << GenerateRandomNumber(8) << endl;
+        struct sockaddr_in servaddr;
+        char buf[MAXLINE];
+        int sockfd, n;
+        char str[3000];
+
+        // IntToBytes(1000, str + 4);
+        // memset(str, 0, sizeof(str));
+        // str[8] = 'x';
+        // str[9] = '1';
+        // str[10] = '0';
+
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+        bzero(&servaddr, sizeof(servaddr));
+        servaddr.sin_family = AF_INET;
+        inet_pton(AF_INET, "127.0.0.1", &servaddr.sin_addr);
+        servaddr.sin_port = htons(SERV_PORT);
+
+        connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+
+        write(sockfd, msg[0], 8);
+
+        n = read(sockfd, buf, MAXLINE);
+        printf("Response from server:\n");
+        write(STDOUT_FILENO, buf, n);
+        printf("\n");
+        // close(sockfd);
     }
-    // Log("this is a log", __FUNCTION__, __LINE__);
-    // Log("this is a log", __FUNCTION__, __LINE__);
-    // struct sockaddr_in servaddr;
-    // char buf[MAXLINE];
-    // int sockfd, n;
-    // char str[3000];
-
-    // IntToBytes(50101, str + 4);
-    // // memset(str, 0, sizeof(str));
-    // // str[8] = 'x';
-    // // str[9] = '1';
-    // // str[10] = '0';
-
-    // sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    // bzero(&servaddr, sizeof(servaddr));
-    // servaddr.sin_family = AF_INET;
-    // inet_pton(AF_INET, "127.0.0.1", &servaddr.sin_addr);
-    // servaddr.sin_port = htons(SERV_PORT);
-
-    // connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
-
-    // write(sockfd, str, 11);
-
-    // n = read(sockfd, buf, MAXLINE);
-    // printf("Response from server:\n");
-    // write(STDOUT_FILENO, buf, n);
-    // printf("\n");
-    // close(sockfd);
     return 0;
 }

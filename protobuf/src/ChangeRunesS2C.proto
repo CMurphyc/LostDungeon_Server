@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message ChangeRunesS2C {
+    int32 error = 1;
+    int32 uid = 2;
+    int32 runes = 3;
+}

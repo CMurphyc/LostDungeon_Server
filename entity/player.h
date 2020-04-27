@@ -6,6 +6,21 @@
 #include "../protobuf/BattleInput.pb.h"
 using namespace std;
 
+enum PlayerStatus {
+    //掉线
+    OFFLINE,
+    //在大厅内
+    IN_HALL,
+    //在房间内
+    IN_ROOM,
+    //在房间内准备了游戏
+    IS_READY,
+    //在加载场景
+    IS_LOADING,
+    //在帧同步游戏
+    IS_SYNC_
+};
+
 class Player {
     private:
         int uid_;
@@ -17,14 +32,20 @@ class Player {
         string password_;
         //职业
         Role role_;
+        //符文
+        int runes_;
 
     public:
-        //是否同步广播帧同步帧
+        //是否在线
         bool is_online_;
-        //是否在房间内
-        bool is_in_room_;
         //在房间中是否准备了
         bool is_ready_;
+        //玩家状态
+        PlayerStatus player_status_;
+        //是否在房间内
+        bool is_in_room_;
+        //是否准备同步
+        bool is_sync_;
         //是否在游戏中
         bool is_in_game_;
         //在房间内的id
@@ -44,6 +65,9 @@ class Player {
         string GetUserName();
         void SetRole(Role role);
         Role GetRole();
+        int GetRunes();
+        void SetRunes(int runes);
+        void ResetStatus();
 
 };
 

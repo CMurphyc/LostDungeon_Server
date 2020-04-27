@@ -30,6 +30,7 @@ class Room {
         //帧同步有关数据
         vector<BattleFrame> battle_frames;
         int frame_count_;
+        int floor_count_;
     public:
         //该房间游戏是否开始
         bool is_start_;
@@ -54,6 +55,7 @@ class Room {
         int GetRoomSize();
         int GetCurRoomSize();
         bool StartGame();
+        bool StartSync();
         void CollectPlayerInput(BattleFrame &battle_frame);
         bool CheckNeedToDeleteRoom();
 };

@@ -1,4 +1,4 @@
-syntax="proto3";
+syntax = "proto3";
 
 message BattleInput {
     int32 uid = 1;

@@ -1,4 +1,6 @@
 #include <ctime>
+#include <signal.h>
+#include <unistd.h>
 
 #include "../other/tools.h"
 #include "../config/global_define.h"
@@ -31,4 +33,25 @@ void Log(const char *log_info, const char *function_info, int line_info) {
     printf("%s", SMALL_DIVIDER);
     printf("log: %s", log_info);
     printf("%s", BIG_DIVIDER);
+}
+
+void InitDaemon(int8_t nochdir, int8_t noclose) {
+	daemon(nochdir, noclose);
+
+	//ignore signals 信号
+
+	signal(SIGINT,  SIG_IGN);
+
+	signal(SIGHUP,  SIG_IGN);
+
+	signal(SIGQUIT, SIG_IGN);
+
+	signal(SIGPIPE, SIG_IGN);
+
+	signal(SIGTTOU, SIG_IGN);
+
+	signal(SIGTTIN, SIG_IGN);
+
+	signal(SIGTERM, SIG_IGN);
+
 }

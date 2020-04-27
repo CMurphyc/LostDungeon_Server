@@ -120,6 +120,9 @@ void Server::HandleRecvPackage() {
 void Server::HandleMsg() {
     // printf("fd %d req %d\n", cur_fd_, cur_recv_msg_type_);
     switch (cur_recv_msg_type_) {
+        case BATTLE_INPUT_REQ:
+            HandleBattleInput();
+            break;
         case LOGIN_REQ:
             TmpLogin();
             //Login(cur_recv_msg_type_);
@@ -139,14 +142,14 @@ void Server::HandleMsg() {
         case PLAYER_READY_REQ:
             PlayerReady();
             break;
+        case START_SYNC_REQ:
+            StartSync();
+            break;
         case ROOM_CHANGE_ROLE_REQ:
             ChangeRole();
             break;
         case LEAVE_ROOM_REQ:
             LeaveRoom();
-            break;
-        case BATTLE_INPUT_REQ:
-            HandleBattleInput();
             break;
         default : 
             cout << "recv a none type package" << endl;
@@ -427,6 +430,7 @@ void Server::GetRoomInfo(int room_id) {
         player_info->set_username(cur_player->GetUserName());
         player_info->set_role(cur_player->GetRole());
         player_info->set_isready(cur_player->is_ready_);
+        player_info->set_runes(cur_player->GetRunes());
     }
     get_room_info_s2c.set_roomownerid(cur_room->GetOwnerUid());
     get_room_info_s2c.set_roomid(cur_room->GetRoomId());
@@ -504,8 +508,8 @@ void Server::PlayerReady() {
             cur_room->start_game_s2c.CopyFrom(start_game_s2c);
             BroadCast(cur_room->player_set_, start_game_s2c,
                       START_GAME_BROAD_CAST);
-            UpdateTimeVal(cur_room->pre_tv_);
-            room_wait_queue_.push(cur_room);
+            // UpdateTimeVal(cur_room->pre_tv_);
+            // room_wait_queue_.push(cur_room);
             cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start game success" << endl;
         } else {
             start_game_s2c.set_succeed(false);
@@ -535,6 +539,27 @@ void Server::ChangeRole() {
     cur_player->SetRole(change_role_c2s.role());
     GetRoomInfo(cur_player->GetRoomId());
     cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change role : " << cur_player->GetRole() << endl;
+}
+
+void Server::ChangeRunes() {
+    // ChangeRoleS2C change_role_s2c = ChangeRoleS2C();
+    // ChangeRoleC2S change_role_c2s = ChangeRoleC2S();
+    // Player *cur_player = nullptr;
+    // if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+    //     !Deserialize(change_role_c2s)) {
+    //     CloseClientFd(cur_fd_);
+    //     return ;
+    // }
+    // if (!cur_player->is_in_room_ ||
+    //     id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
+    //     change_role_s2c.set_error(NOT_IN_ROOM_ERROR);
+    //     Send(change_role_s2c, ROOM_CHANGE_ROLE_RET);
+    //     cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change role failed, because player is not in room "<< endl;
+    //     return ;
+    // }
+    // cur_player->SetRole(change_role_c2s.role());
+    // GetRoomInfo(cur_player->GetRoomId());
+    // cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change role : " << cur_player->GetRole() << endl;
 }
 
 void Server::LeaveRoom() {
@@ -575,44 +600,30 @@ void Server::DeleteRoom(int room_id) {
     cur_room = nullptr;
 }
 
-// void Server::StartGame() {
-//     StartGameS2C start_game_s2c = StartGameS2C();
-//     int cur_uid = fd_to_uid_[cur_fd_];
-//     Player *cur_player = uid_to_player_[cur_uid];
-//     if (!cur_player->is_in_room_ || 
-//         id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
-//         start_game_s2c.set_error(NOT_IN_ROOM_ERROR);
-//         Send(start_game_s2c, START_GAME_BROAD_CAST);
-//         cout << "StartGame::" << "playerId: " << cur_uid << " playerName: " << cur_player->GetUserName() << " error" << endl;
-//         CloseClientFd();
-//         /*
-//             TODO: 客户端不在房间但是发了房间有关包，把它踢了
-//                   可能是服务器出错了，也可能是客户端错了
-//         */
-//         return ;
-//     }
-//     Room *cur_room = id_to_room_[cur_player->GetRoomId()];
-//     if(cur_room->GetOwnerUid() != cur_uid) {
-//         start_game_s2c.set_error(NOT_OWNER_START_GAME);
-//         Send(start_game_s2c, START_GAME_BROAD_CAST);
-//         CloseClientFd();
-//         /*
-//             TODO: 不是房主但是发了开始游戏的包
-//         */
-//         return ;
-//     }
-//     if (cur_room->StartGame()) {
-//         start_game_s2c.set_succeed(true);
-//         start_game_s2c.set_floornumber(DEFAULT_FLOOR_NUMBER);
-//         start_game_s2c.set_seed(GenerateRandomNumber(DEFAULT_RANDOM_DIGIT));
-        
-//         BroadCast(cur_room->player_set_, start_game_s2c, START_GAME_BROAD_CAST);
-//     } else {
-//         start_game_s2c.set_succeed(false);
-//         Send(start_game_s2c, START_GAME_BROAD_CAST);
-//         room_queue_.push(cur_room);
-//     }
-// }
+void Server::StartSync() {
+    Player *cur_player = nullptr;
+    Room *cur_room = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
+        CloseClientFd(cur_fd_);
+        return ;
+    }
+    StartSyncS2C start_sync_s2c = StartSyncS2C();
+    if (!cur_player->is_in_game_) {
+        start_sync_s2c.set_error(NOT_IN_GAME_ERROR);
+        Send(start_sync_s2c, START_SYNC_BROAD_CAST);
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start sync failed because player is not in game"<< endl;
+        return ;
+    }
+    cur_player->is_sync_ = true;
+    if (cur_room->StartSync()) {
+        start_sync_s2c.set_succeed(true);
+        BroadCast(cur_room->player_set_, start_sync_s2c, START_SYNC_BROAD_CAST);
+        UpdateTimeVal(cur_room->pre_tv_);
+        room_sync_queue_.push(cur_room);
+        cout << "room id : " << cur_room->GetRoomId() << " start sync" << endl;
+    }
+}
 
 void Server::HandleBattleInput() {
     Player *cur_player = nullptr;
@@ -632,7 +643,7 @@ void Server::HandleBattleInput() {
 
 void Server::CheckWaitRoom() {
     if (!room_wait_queue_.empty() &&
-           CheckTimeInterval(room_wait_queue_.front()->pre_tv_, BEFORE_SYNC_WAIT_TIME)) {
+        CheckTimeInterval(room_wait_queue_.front()->pre_tv_, BEFORE_SYNC_WAIT_TIME)) {
         Room *cur_room = room_wait_queue_.front();
         room_wait_queue_.pop();
         // cout << "room wait queue size : " << room_wait_queue_.size() << endl;

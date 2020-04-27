@@ -6,12 +6,7 @@ Player::Player() {
 
 Player::Player(int uid) {
     uid_ = uid;
-    in_room_id_ = 99999;
-    is_online_ = true;
-    is_in_room_ = false;
-    is_ready_ = false;
-    is_in_game_ = false;
-    role_ = ENGINEER;
+    ResetStatus();
 }
 
 Player::~Player() {
@@ -52,4 +47,25 @@ void Player::SetRole(Role role) {
 
 Role Player::GetRole() {
     return role_;
+}
+
+int Player::GetRunes() {
+    return runes_;
+}
+
+void Player::SetRunes(int runes) {
+    runes_ = runes;
+}
+
+void Player::ResetStatus() {
+    room_id_ = 0;
+    in_room_id_ = 99999;
+    is_online_ = true;
+    is_ready_ = false;
+    player_status_ = IN_ROOM;
+    // is_in_room_ = false;
+    // is_sync_ = false;
+    // is_in_game_ = false;
+    role_ = ENGINEER;
+    runes_ = 0;
 }

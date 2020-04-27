@@ -11,6 +11,8 @@
 #include "../protobuf/LoginC2S.pb.h"
 #include "../protobuf/LoginS2C.pb.h"
 #include "../protobuf/PlayerInfo.pb.h"
+#include "../protobuf/GameOverC2S.pb.h"
+#include "../protobuf/GameOverS2C.pb.h"
 #include "../protobuf/RegisterC2S.pb.h"
 #include "../protobuf/RegisterS2C.pb.h"
 #include "../protobuf/BattleFrame.pb.h"
@@ -86,8 +88,9 @@ class Server {
         void EnterRoom();
         void PlayerReady();
         void ChangeRole();
+        void ChangeRunes();
         void LeaveRoom();
-        void StartGame();
+        void StartSync();
         void HandleBattleInput();
         void CheckWaitRoom();
         void BroadCastBattleFrame();

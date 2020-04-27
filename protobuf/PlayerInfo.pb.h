@@ -191,6 +191,12 @@ class PlayerInfo : public ::google::protobuf::Message /* @@protoc_insertion_poin
   bool isready() const;
   void set_isready(bool value);
 
+  // int32 runes = 5;
+  void clear_runes();
+  static const int kRunesFieldNumber = 5;
+  ::google::protobuf::int32 runes() const;
+  void set_runes(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:PlayerInfo)
  private:
 
@@ -199,6 +205,7 @@ class PlayerInfo : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::google::protobuf::int32 playerid_;
   int role_;
   bool isready_;
+  ::google::protobuf::int32 runes_;
   mutable int _cached_size_;
   friend struct ::protobuf_PlayerInfo_2eproto::TableStruct;
   friend void ::protobuf_PlayerInfo_2eproto::InitDefaultsPlayerInfoImpl();
@@ -307,6 +314,20 @@ inline void PlayerInfo::set_isready(bool value) {
   
   isready_ = value;
   // @@protoc_insertion_point(field_set:PlayerInfo.isReady)
+}
+
+// int32 runes = 5;
+inline void PlayerInfo::clear_runes() {
+  runes_ = 0;
+}
+inline ::google::protobuf::int32 PlayerInfo::runes() const {
+  // @@protoc_insertion_point(field_get:PlayerInfo.runes)
+  return runes_;
+}
+inline void PlayerInfo::set_runes(::google::protobuf::int32 value) {
+  
+  runes_ = value;
+  // @@protoc_insertion_point(field_set:PlayerInfo.runes)
 }
 
 #ifdef __GNUC__

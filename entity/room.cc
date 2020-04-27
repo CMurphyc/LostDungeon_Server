@@ -44,12 +44,8 @@ void Room::AddPlayer(Player *player) {
 void Room::LeaveRoom(Player *player) {
     if (player_set_.find(player) != player_set_.end()) {
         --cur_room_size_;
-        player->is_in_room_ = false;
-        player->is_ready_ = false;
-        player->SetRoomId(0);
-        player->SetRole(ENGINEER);
+        player->ResetStatus();
         player_set_.erase(player_set_.find(player));
-        player->in_room_id_ = 99999;
         ReSortRoom();
         cout << "player : " << player->GetUserName() << " leave room : " << room_id_ << " success" << endl;
     }
@@ -114,6 +110,22 @@ bool Room::StartGame() {
         (*it)->is_in_room_ = false;
     }
     is_start_ = true;
+    return true;
+}
+
+bool Room::StartSync() {
+    if (!is_start_) {
+        return false;
+    }
+    set<Player *, PlayerCmp>::iterator it;
+    for (it = player_set_.begin(); it != player_set_.end(); ++it) {
+        if (!(*it)->is_sync_) {
+            return false;
+        }
+    }
+    for (it = player_set_.begin(); it != player_set_.end(); ++it) {
+        (*it)->is_sync_ = false;
+    }
     return true;
 }
 

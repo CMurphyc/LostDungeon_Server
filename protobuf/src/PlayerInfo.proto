@@ -11,4 +11,5 @@ message PlayerInfo {
     string userName = 2;
     Role role = 3;
     bool isReady = 4;
+    int32 runes = 5;
 }
