@@ -381,7 +381,7 @@ void Server::CreateRoom() {
         CloseClientFd(cur_fd_);
         return ;
     }
-    if (cur_player->is_in_room_ || id_to_room_.size() >= MAX_ROOM_NUMBER) {
+    if (!cur_player->CheckStatus(IN_HALL) || id_to_room_.size() >= MAX_ROOM_NUMBER) {
         create_room_s2c.set_succeed(false);
         Send(create_room_s2c, CREATE_ROOM_RET);
         return ;
@@ -429,7 +429,7 @@ void Server::GetRoomInfo(int room_id) {
         player_info->set_playerid(cur_player->GetUid());
         player_info->set_username(cur_player->GetUserName());
         player_info->set_role(cur_player->GetRole());
-        player_info->set_isready(cur_player->is_ready_);
+        player_info->set_isready(cur_player->CheckStatus(ROOM_READY));
         player_info->set_runes(cur_player->GetRunes());
     }
     get_room_info_s2c.set_roomownerid(cur_room->GetOwnerUid());
@@ -459,7 +459,7 @@ void Server::EnterRoom() {
     //     return ;
     // }
     cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " want to enter room : " << cur_room->GetRoomId() << endl;
-    if (cur_player->is_in_room_ ||
+    if (!cur_player->CheckStatus(IN_HALL) ||
         !cur_room->CheckRoomSize() ||
         cur_room->is_start_) {
         enter_room_s2c.set_error(ALREADY_IN_ROOM_ERROR);
@@ -480,16 +480,16 @@ void Server::PlayerReady() {
         CloseClientFd(cur_fd_);
         return ;
     }
-    if (!cur_player->is_in_room_) {
+    if (!cur_player->CheckInRoom()) {
         player_ready_s2c.set_error(NOT_IN_ROOM_ERROR);
         Send(player_ready_s2c, PLAYER_READY_RET);
-        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change status failed because player is not in room"<< endl;
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change ready failed because player is not in room"<< endl;
         return ;
     }
     if (cur_player->GetUid() != cur_room->GetOwnerUid()) {
-        cur_player->is_ready_ = !cur_player->is_ready_;
+        cur_player->PlayerReady();
         GetRoomInfo(cur_room->GetRoomId());
-        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change status : " << cur_player->is_ready_ << endl;
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change ready" << endl;
     } else {
         StartGameS2C start_game_s2c = StartGameS2C();
         if (cur_room->StartGame()) {
@@ -510,11 +510,11 @@ void Server::PlayerReady() {
                       START_GAME_BROAD_CAST);
             // UpdateTimeVal(cur_room->pre_tv_);
             // room_wait_queue_.push(cur_room);
-            cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start game success" << endl;
+            cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start game success, now is loading..." << endl;
         } else {
             start_game_s2c.set_succeed(false);
             Send(start_game_s2c, START_GAME_BROAD_CAST);
-            cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start game failed" << endl;
+            cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start loading failed" << endl;
         }
     }
     
@@ -529,7 +529,7 @@ void Server::ChangeRole() {
         CloseClientFd(cur_fd_);
         return ;
     }
-    if (!cur_player->is_in_room_ ||
+    if (!cur_player->CheckInRoom() ||
         id_to_room_.find(cur_player->GetRoomId()) == id_to_room_.end()) {
         change_role_s2c.set_error(NOT_IN_ROOM_ERROR);
         Send(change_role_s2c, ROOM_CHANGE_ROLE_RET);
@@ -570,7 +570,7 @@ void Server::LeaveRoom() {
         !SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
         return ;
     }
-    if (!cur_player->is_in_room_) {
+    if (!cur_player->CheckInRoom()) {
         leave_room_s2c.set_error(NOT_IN_ROOM_ERROR);
         Send(leave_room_s2c, LEAVE_ROOM_RET);
         cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " leave room failed, because player is not in room" << endl;
@@ -609,19 +609,19 @@ void Server::StartSync() {
         return ;
     }
     StartSyncS2C start_sync_s2c = StartSyncS2C();
-    if (!cur_player->is_in_game_) {
+    if (!cur_player->CheckStatus(IS_LOADING)) {
         start_sync_s2c.set_error(NOT_IN_GAME_ERROR);
         Send(start_sync_s2c, START_SYNC_BROAD_CAST);
         cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start sync failed because player is not in game"<< endl;
         return ;
     }
-    cur_player->is_sync_ = true;
+    cur_player->ChangeStatus(SYNC_READY);
     if (cur_room->StartSync()) {
         start_sync_s2c.set_succeed(true);
         BroadCast(cur_room->player_set_, start_sync_s2c, START_SYNC_BROAD_CAST);
         UpdateTimeVal(cur_room->pre_tv_);
         room_sync_queue_.push(cur_room);
-        cout << "room id : " << cur_room->GetRoomId() << " start sync" << endl;
+        cout << "room id : " << cur_room->GetRoomId() << " loading success, now start sync" << endl;
     }
 }
 
@@ -633,30 +633,12 @@ void Server::HandleBattleInput() {
         return ;
     }
     BattleFrame battle_frame = BattleFrame();
-    if (!cur_player->is_in_game_) {
+    if (!cur_player->CheckStatus(IS_SYNC)) {
         battle_frame.set_error(NOT_IN_GAME_ERROR);
         Send(battle_frame, BATTLE_INPUT_RET);
         return ;
     }
     cur_player->cur_battle_input_.set_uid(cur_player->GetUid());
-}
-
-void Server::CheckWaitRoom() {
-    if (!room_wait_queue_.empty() &&
-        CheckTimeInterval(room_wait_queue_.front()->pre_tv_, BEFORE_SYNC_WAIT_TIME)) {
-        Room *cur_room = room_wait_queue_.front();
-        room_wait_queue_.pop();
-        // cout << "room wait queue size : " << room_wait_queue_.size() << endl;
-        // cout << "cur room id : " << cur_room->GetRoomId() << endl;
-        // cout << "cur room pre timeval : " << cur_room->pre_tv_.tv_sec * 1000000 + cur_room->pre_tv_.tv_sec << endl;
-        if (cur_room->CheckNeedToDeleteRoom()) {
-            DeleteRoom(cur_room->GetRoomId());
-            return ;
-        }
-        UpdateTimeVal(cur_room->pre_tv_);
-        room_sync_queue_.push(cur_room);
-        cout << "room id : " << cur_room->GetRoomId() << " start sync" << endl;
-    }
 }
 
 /*
@@ -706,7 +688,7 @@ void Server::BroadCast(set<Player *, PlayerCmp> &player_set,
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set.begin(); it != player_set.end();) {
-        if (!(*it)->is_online_) {
+        if ((*it)->CheckStatus(OFFLINE)) {
             ++it;
             continue;
         }
@@ -765,7 +747,7 @@ void Server::CloseClientFd(int fd) {
 Server::Server(int _port) {
     player_count_ = 0;
     port_ = _port;
-    cur_client_buff_ = new ClientBuff();
+    cur_client_buff_ = nullptr;
     cur_ret_buff_ = new byte[BUFF_SIZE];
     fd_to_buff_.clear();
     cur_ret_msg_ = nullptr;
@@ -780,7 +762,6 @@ Server::Server(int _port) {
 
 Server::~Server() {
     delete[] cur_ret_buff_;
-    delete cur_ret_msg_;
     unordered_map<int, ClientBuff*>::iterator it;
     for (it = fd_to_buff_.begin(); it != fd_to_buff_.end(); ++it) {
         close((*it).first);
@@ -890,7 +871,6 @@ void Server::Run() {
                 Recv();
             }
         }
-        CheckWaitRoom();
         BroadCastBattleFrame();
     }
     delete[] events;

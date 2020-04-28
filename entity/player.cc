@@ -6,7 +6,7 @@ Player::Player() {
 
 Player::Player(int uid) {
     uid_ = uid;
-    ResetStatus();
+    ResetPlayer();
 }
 
 Player::~Player() {
@@ -57,15 +57,47 @@ void Player::SetRunes(int runes) {
     runes_ = runes;
 }
 
-void Player::ResetStatus() {
+void Player::ResetPlayer() {
     room_id_ = 0;
     in_room_id_ = 99999;
-    is_online_ = true;
-    is_ready_ = false;
-    player_status_ = IN_ROOM;
-    // is_in_room_ = false;
-    // is_sync_ = false;
-    // is_in_game_ = false;
+    cur_status_ = IN_HALL;
     role_ = ENGINEER;
     runes_ = 0;
+}
+
+PlayerStatus Player::GetPlayerStatus() {
+    return cur_status_;
+}
+
+bool Player::CheckStatus(PlayerStatus status) {
+    if (cur_status_ == status) {
+        return true;
+    }
+    return false;
+}
+
+bool Player::CheckInRoom() {
+    if (cur_status_ == IN_ROOM || cur_status_ == ROOM_READY) {
+        return true;
+    }
+    return false;
+}
+
+void Player::ChangeStatus(PlayerStatus status) {
+    cur_status_ = status;
+}
+
+/*
+    TODO: 检查玩家状态能否互相切换的函数，更加安全的状态转换
+*/
+bool Player::CheckChangeStatus(PlayerStatus status) {
+
+}
+
+void Player::PlayerReady() {
+    if (cur_status_ == IN_ROOM) {
+        cur_status_ = ROOM_READY;
+    } else if (cur_status_ == ROOM_READY) {
+        cur_status_ = IN_ROOM;
+    }
 }

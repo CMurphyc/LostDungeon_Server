@@ -31,11 +31,10 @@ bool Room::CheckRoomSize() {
 void Room::AddPlayer(Player *player) {
     if (player_set_.find(player) == player_set_.end()) {
         ++cur_room_size_;
-        player->is_ready_ = false;
+        player->ChangeStatus(IN_ROOM);
         player->SetRole(ENGINEER);
         player->SetRoomId(room_id_);
         player->in_room_id_ = cur_room_size_;
-        player->is_in_room_ = true;
         player_set_.insert(player);
         cout << "player : " << player->GetUserName() << " enter room : " << room_id_ << " success" << endl;
     }
@@ -44,7 +43,7 @@ void Room::AddPlayer(Player *player) {
 void Room::LeaveRoom(Player *player) {
     if (player_set_.find(player) != player_set_.end()) {
         --cur_room_size_;
-        player->ResetStatus();
+        player->ResetPlayer();
         player_set_.erase(player_set_.find(player));
         ReSortRoom();
         cout << "player : " << player->GetUserName() << " leave room : " << room_id_ << " success" << endl;
@@ -101,13 +100,12 @@ bool Room::StartGame() {
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        if (!(*it)->is_ready_ && ((*it)->GetUid() != GetOwnerUid())) {
+        if (!(*it)->CheckStatus(ROOM_READY) && ((*it)->GetUid() != GetOwnerUid())) {
             return false;
         }
     }
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        (*it)->is_in_game_ = true;
-        (*it)->is_in_room_ = false;
+        (*it)->ChangeStatus(IS_LOADING);
     }
     is_start_ = true;
     return true;
@@ -119,12 +117,12 @@ bool Room::StartSync() {
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        if (!(*it)->is_sync_) {
+        if (!(*it)->CheckStatus(SYNC_READY)) {
             return false;
         }
     }
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        (*it)->is_sync_ = false;
+        (*it)->ChangeStatus(IS_SYNC);
     }
     return true;
 }
@@ -147,7 +145,7 @@ bool Room::CheckNeedToDeleteRoom() {
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        if ((*it)->is_online_) {
+        if (!(*it)->CheckStatus(OFFLINE)) {
             return false;
         }
     }

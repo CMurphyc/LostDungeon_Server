@@ -7,18 +7,20 @@
 using namespace std;
 
 enum PlayerStatus {
-    //掉线
+    //掉线状态
     OFFLINE,
     //在大厅内
     IN_HALL,
     //在房间内
     IN_ROOM,
     //在房间内准备了游戏
-    IS_READY,
+    ROOM_READY,
     //在加载场景
     IS_LOADING,
+    //加载场景完成
+    SYNC_READY,
     //在帧同步游戏
-    IS_SYNC_
+    IS_SYNC
 };
 
 class Player {
@@ -26,6 +28,8 @@ class Player {
         int uid_;
         //该玩家客户端socket的fd
         int client_fd_;
+        //玩家状态
+        PlayerStatus cur_status_;
         //所在房间id
         int room_id_;
         string user_name_;
@@ -36,18 +40,6 @@ class Player {
         int runes_;
 
     public:
-        //是否在线
-        bool is_online_;
-        //在房间中是否准备了
-        bool is_ready_;
-        //玩家状态
-        PlayerStatus player_status_;
-        //是否在房间内
-        bool is_in_room_;
-        //是否准备同步
-        bool is_sync_;
-        //是否在游戏中
-        bool is_in_game_;
         //在房间内的id
         int in_room_id_;
         //玩家当前帧操作
@@ -67,7 +59,13 @@ class Player {
         Role GetRole();
         int GetRunes();
         void SetRunes(int runes);
-        void ResetStatus();
+        void ResetPlayer();
+        PlayerStatus GetPlayerStatus();
+        bool CheckStatus(PlayerStatus status);
+        bool CheckInRoom();
+        void ChangeStatus(PlayerStatus status);
+        bool CheckChangeStatus(PlayerStatus status);
+        void PlayerReady();
 
 };
 

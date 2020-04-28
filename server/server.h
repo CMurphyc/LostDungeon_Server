@@ -63,7 +63,6 @@ class Server {
         struct timeval cur_tv_;
         map<int, Room *>id_to_room_;
         queue<Room *> room_sync_queue_;
-        queue<Room *> room_wait_queue_;
         
         void Recv();
         void Send(google::protobuf::Message &message, int msg_type);
