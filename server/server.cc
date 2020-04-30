@@ -700,7 +700,21 @@ void Server::NextFloor() {
 }
 
 void Server::GameOver() {
-
+    Player *cur_player = nullptr;
+    Room *cur_room = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
+        CloseClientFd(cur_fd_);
+        return ;
+    }
+    GameOverS2C game_over_s2c = GameOverS2C();
+    if (!cur_room->GameOver()) {
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " already over the game"<< endl;
+        return ;
+    }
+    game_over_s2c.set_succeed(true);
+    BroadCast(cur_room->player_set_, game_over_s2c, GAME_OVER_BROAD_CAST);
+    cout << "room: " << cur_room->GetRoomId() << " game over" << endl;
 }
 
 void Server::UpdateTimeVal(struct timeval &tv) {

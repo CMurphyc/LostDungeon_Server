@@ -25,7 +25,8 @@ class Room {
         enum RoomStatus {
             IN_HALL,
             IS_LOADING,
-            IS_SYNC
+            IS_SYNC,
+            IS_OVER
         };
         //上次广播的时间
         struct timeval pre_tv_;
@@ -50,6 +51,7 @@ class Room {
         bool StartGame();
         bool StartSync();
         bool NextFloor(int floor_number);
+        bool GameOver();
         void CollectPlayerInput(BattleFrame &battle_frame);
         bool CheckNeedToDeleteRoom();
         RoomStatus GetRoomStatus();

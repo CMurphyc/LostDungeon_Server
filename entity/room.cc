@@ -156,6 +156,26 @@ bool Room::NextFloor(int floor_number) {
     return true;
 }
 
+bool Room::GameOver() {
+    if (!CheckStatus(RoomStatus::IS_SYNC)) {
+        return false;
+    }
+    set<Player *, PlayerCmp>::iterator it;
+    for (it = player_set_.begin(); it != player_set_.end(); ++it) {
+        if (!(*it)->CheckStatus(Player::PlayerStatus::IS_SYNC)) {
+            return false;
+        }
+    }
+    for (it = player_set_.begin(); it != player_set_.end();) {
+        Player *player = (*it);
+        player_set_.erase(it++);
+        player->ResetPlayer();
+    }
+    cur_room_size_ = 0;
+    ChangeStatus(RoomStatus::IS_OVER);
+    return true;
+}
+
 void Room::CollectPlayerInput(BattleFrame &battle_frame) {
     battle_frame.set_framenumber(++frame_count_);
     battle_frame.set_randomcode(GenerateRandomNumber(DEFAULT_RANDOM_DIGIT));
@@ -169,7 +189,8 @@ void Room::CollectPlayerInput(BattleFrame &battle_frame) {
 }
 
 bool Room::CheckNeedToDeleteRoom() {
-    if (GetCurRoomSize() <= 0 || player_set_.size() == 0) {
+    if (GetCurRoomSize() <= 0 || player_set_.size() == 0 ||
+        CheckStatus(Room::IS_OVER)) {
         return true;
     }
     set<Player *, PlayerCmp>::iterator it;
