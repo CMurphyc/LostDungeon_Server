@@ -22,12 +22,11 @@ public static partial class GameOverC2SReflection {
   static GameOverC2SReflection() {
     byte[] descriptorData = global::System.Convert.FromBase64String(
         string.Concat(
-          "ChFHYW1lT3ZlckMyUy5wcm90byIcCgtHYW1lT3ZlckMyUxINCgVpc1dpbhgB",
-          "IAEoCGIGcHJvdG8z"));
+          "ChFHYW1lT3ZlckMyUy5wcm90byINCgtHYW1lT3ZlckMyU2IGcHJvdG8z"));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-          new pbr::GeneratedClrTypeInfo(typeof(global::GameOverC2S), global::GameOverC2S.Parser, new[]{ "IsWin" }, null, null, null)
+          new pbr::GeneratedClrTypeInfo(typeof(global::GameOverC2S), global::GameOverC2S.Parser, null, null, null, null)
         }));
   }
   #endregion
@@ -59,24 +58,12 @@ public sealed partial class GameOverC2S : pb::IMessage<GameOverC2S> {
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   public GameOverC2S(GameOverC2S other) : this() {
-    isWin_ = other.isWin_;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   public GameOverC2S Clone() {
     return new GameOverC2S(this);
-  }
-
-  /// <summary>Field number for the "isWin" field.</summary>
-  public const int IsWinFieldNumber = 1;
-  private bool isWin_;
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  public bool IsWin {
-    get { return isWin_; }
-    set {
-      isWin_ = value;
-    }
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -92,14 +79,12 @@ public sealed partial class GameOverC2S : pb::IMessage<GameOverC2S> {
     if (ReferenceEquals(other, this)) {
       return true;
     }
-    if (IsWin != other.IsWin) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   public override int GetHashCode() {
     int hash = 1;
-    if (IsWin != false) hash ^= IsWin.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
     }
@@ -113,10 +98,6 @@ public sealed partial class GameOverC2S : pb::IMessage<GameOverC2S> {
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   public void WriteTo(pb::CodedOutputStream output) {
-    if (IsWin != false) {
-      output.WriteRawTag(8);
-      output.WriteBool(IsWin);
-    }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(output);
     }
@@ -125,9 +106,6 @@ public sealed partial class GameOverC2S : pb::IMessage<GameOverC2S> {
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   public int CalculateSize() {
     int size = 0;
-    if (IsWin != false) {
-      size += 1 + 1;
-    }
     if (_unknownFields != null) {
       size += _unknownFields.CalculateSize();
     }
@@ -138,9 +116,6 @@ public sealed partial class GameOverC2S : pb::IMessage<GameOverC2S> {
   public void MergeFrom(GameOverC2S other) {
     if (other == null) {
       return;
-    }
-    if (other.IsWin != false) {
-      IsWin = other.IsWin;
     }
     _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
   }
@@ -153,10 +128,6 @@ public sealed partial class GameOverC2S : pb::IMessage<GameOverC2S> {
         default:
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
           break;
-        case 8: {
-          IsWin = input.ReadBool();
-          break;
-        }
       }
     }
   }

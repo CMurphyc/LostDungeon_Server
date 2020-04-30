@@ -5,11 +5,12 @@ Room::Room() {
 }
 
 Room::Room(int id) {
-    is_start_ = false;
+    cur_status_ = RoomStatus::IN_HALL;
     room_id_ = id;
     cur_room_size_ = 0;
     room_size_ = DEFAULT_ROOM_SIZE;
     frame_count_ = 0;
+    floor_count_ = 0;
     pre_tv_ = {0, 0};
 }
 
@@ -31,7 +32,7 @@ bool Room::CheckRoomSize() {
 void Room::AddPlayer(Player *player) {
     if (player_set_.find(player) == player_set_.end()) {
         ++cur_room_size_;
-        player->ChangeStatus(IN_ROOM);
+        player->ChangeStatus(Player::PlayerStatus::IN_ROOM);
         player->SetRole(ENGINEER);
         player->SetRoomId(room_id_);
         player->in_room_id_ = cur_room_size_;
@@ -95,35 +96,63 @@ int Room::GetCurRoomSize() {
 }
 
 bool Room::StartGame() {
-    if (is_start_) {
+    if (!CheckStatus(RoomStatus::IN_HALL)) {
         return false;
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        if (!(*it)->CheckStatus(ROOM_READY) && ((*it)->GetUid() != GetOwnerUid())) {
+        if (!(*it)->CheckStatus(Player::PlayerStatus::ROOM_READY) &&
+            ((*it)->GetUid() != GetOwnerUid())) {
             return false;
         }
     }
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        (*it)->ChangeStatus(IS_LOADING);
+        (*it)->ChangeStatus(Player::PlayerStatus::IS_LOADING);
     }
-    is_start_ = true;
+    floor_count_ = 1;
+    ChangeStatus(RoomStatus::IS_LOADING);
     return true;
 }
 
 bool Room::StartSync() {
-    if (!is_start_) {
+    if (CheckStatus(RoomStatus::IN_HALL)) {
         return false;
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        if (!(*it)->CheckStatus(SYNC_READY)) {
+        if (!(*it)->CheckStatus(Player::PlayerStatus::SYNC_READY)) {
             return false;
         }
     }
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        (*it)->ChangeStatus(IS_SYNC);
+        (*it)->ChangeStatus(Player::PlayerStatus::IS_SYNC);
     }
+    ChangeStatus(RoomStatus::IS_SYNC);
+    return true;
+}
+
+/*
+    TODO: 状态管理优化可以参考这个NextFloor函数，再把能否转换封装一下就比较完美了
+          这样就能有一个正规完善的状态转换流程
+*/
+bool Room::NextFloor(int floor_number) {
+    if (!CheckStatus(RoomStatus::IS_SYNC)) {
+        return false;
+    }
+    if (floor_count_ != floor_number - 1) {
+        return false;
+    }
+    ++floor_count_;
+    set<Player *, PlayerCmp>::iterator it;
+    for (it = player_set_.begin(); it != player_set_.end(); ++it) {
+        if (!(*it)->CheckStatus(Player::PlayerStatus::IS_SYNC)) {
+            return false;
+        }
+    }
+    for (it = player_set_.begin(); it != player_set_.end(); ++it) {
+        (*it)->NextFloor();
+    }
+    ChangeStatus(RoomStatus::IS_LOADING);
     return true;
 }
 
@@ -145,9 +174,32 @@ bool Room::CheckNeedToDeleteRoom() {
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        if (!(*it)->CheckStatus(OFFLINE)) {
+        if (!(*it)->CheckStatus(Player::PlayerStatus::OFFLINE)) {
             return false;
         }
     }
     return true;
+}
+
+Room::RoomStatus Room::GetRoomStatus() {
+    return cur_status_;
+}
+
+void Room::ChangeStatus(Room::RoomStatus status) {
+    cur_status_ = status;
+}
+
+bool Room::CheckStatus(RoomStatus status) {
+    if (cur_status_ == status) {
+        return true;
+    }
+    return false;
+}
+
+bool Room::CheckChangeStatus(RoomStatus status) {
+
+}
+
+int Room::GetFloorNumber() {
+    return floor_count_;
 }

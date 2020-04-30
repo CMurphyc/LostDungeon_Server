@@ -136,17 +136,10 @@ class GameOverC2S : public ::google::protobuf::Message /* @@protoc_insertion_poi
 
   // accessors -------------------------------------------------------
 
-  // bool isWin = 1;
-  void clear_iswin();
-  static const int kIsWinFieldNumber = 1;
-  bool iswin() const;
-  void set_iswin(bool value);
-
   // @@protoc_insertion_point(class_scope:GameOverC2S)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  bool iswin_;
   mutable int _cached_size_;
   friend struct ::protobuf_GameOverC2S_2eproto::TableStruct;
   friend void ::protobuf_GameOverC2S_2eproto::InitDefaultsGameOverC2SImpl();
@@ -161,20 +154,6 @@ class GameOverC2S : public ::google::protobuf::Message /* @@protoc_insertion_poi
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
 // GameOverC2S
-
-// bool isWin = 1;
-inline void GameOverC2S::clear_iswin() {
-  iswin_ = false;
-}
-inline bool GameOverC2S::iswin() const {
-  // @@protoc_insertion_point(field_get:GameOverC2S.isWin)
-  return iswin_;
-}
-inline void GameOverC2S::set_iswin(bool value) {
-  
-  iswin_ = value;
-  // @@protoc_insertion_point(field_set:GameOverC2S.isWin)
-}
 
 #ifdef __GNUC__
   #pragma GCC diagnostic pop

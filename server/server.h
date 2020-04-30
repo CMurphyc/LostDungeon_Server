@@ -27,6 +27,8 @@
 #include "../protobuf/LeaveRoomS2C.pb.h"
 #include "../protobuf/StartGameC2S.pb.h"
 #include "../protobuf/StartGameS2C.pb.h"
+#include "../protobuf/NextFloorC2S.pb.h"
+#include "../protobuf/NextFloorS2C.pb.h"
 #include "../protobuf/ChangeRoleC2S.pb.h"
 #include "../protobuf/ChangeRoleS2C.pb.h"
 #include "../protobuf/CreateRoomC2S.pb.h"
@@ -91,8 +93,9 @@ class Server {
         void LeaveRoom();
         void StartSync();
         void HandleBattleInput();
-        void CheckWaitRoom();
         void BroadCastBattleFrame();
+        void NextFloor();
+        void GameOver();
         void CloseClientFd(int fd);
         void UpdateTimeVal(struct timeval &tv);
         bool CheckTimeInterval(struct timeval &pre_tv, int time_interval);

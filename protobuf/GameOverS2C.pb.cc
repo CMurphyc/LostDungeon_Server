@@ -55,6 +55,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameOverS2C, error_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameOverS2C, succeed_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::GameOverS2C)},
@@ -86,11 +87,11 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\021GameOverS2C.proto\"\034\n\013GameOverS2C\022\r\n\005er"
-      "ror\030\001 \001(\005b\006proto3"
+      "\n\021GameOverS2C.proto\"-\n\013GameOverS2C\022\r\n\005er"
+      "ror\030\001 \001(\005\022\017\n\007succeed\030\002 \001(\010b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 57);
+      descriptor, 74);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "GameOverS2C.proto", &protobuf_RegisterTypes);
 }
@@ -113,6 +114,7 @@ void GameOverS2C::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int GameOverS2C::kErrorFieldNumber;
+const int GameOverS2C::kSucceedFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 GameOverS2C::GameOverS2C()
@@ -128,12 +130,16 @@ GameOverS2C::GameOverS2C(const GameOverS2C& from)
       _internal_metadata_(NULL),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  error_ = from.error_;
+  ::memcpy(&error_, &from.error_,
+    static_cast<size_t>(reinterpret_cast<char*>(&succeed_) -
+    reinterpret_cast<char*>(&error_)) + sizeof(succeed_));
   // @@protoc_insertion_point(copy_constructor:GameOverS2C)
 }
 
 void GameOverS2C::SharedCtor() {
-  error_ = 0;
+  ::memset(&error_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&succeed_) -
+      reinterpret_cast<char*>(&error_)) + sizeof(succeed_));
   _cached_size_ = 0;
 }
 
@@ -174,7 +180,9 @@ void GameOverS2C::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  error_ = 0;
+  ::memset(&error_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&succeed_) -
+      reinterpret_cast<char*>(&error_)) + sizeof(succeed_));
   _internal_metadata_.Clear();
 }
 
@@ -196,6 +204,20 @@ bool GameOverS2C::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &error_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // bool succeed = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &succeed_)));
         } else {
           goto handle_unusual;
         }
@@ -233,6 +255,11 @@ void GameOverS2C::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->error(), output);
   }
 
+  // bool succeed = 2;
+  if (this->succeed() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->succeed(), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -250,6 +277,11 @@ void GameOverS2C::SerializeWithCachedSizes(
   // int32 error = 1;
   if (this->error() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->error(), target);
+  }
+
+  // bool succeed = 2;
+  if (this->succeed() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->succeed(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -274,6 +306,11 @@ size_t GameOverS2C::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
         this->error());
+  }
+
+  // bool succeed = 2;
+  if (this->succeed() != 0) {
+    total_size += 1 + 1;
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -308,6 +345,9 @@ void GameOverS2C::MergeFrom(const GameOverS2C& from) {
   if (from.error() != 0) {
     set_error(from.error());
   }
+  if (from.succeed() != 0) {
+    set_succeed(from.succeed());
+  }
 }
 
 void GameOverS2C::CopyFrom(const ::google::protobuf::Message& from) {
@@ -335,6 +375,7 @@ void GameOverS2C::Swap(GameOverS2C* other) {
 void GameOverS2C::InternalSwap(GameOverS2C* other) {
   using std::swap;
   swap(error_, other->error_);
+  swap(succeed_, other->succeed_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }

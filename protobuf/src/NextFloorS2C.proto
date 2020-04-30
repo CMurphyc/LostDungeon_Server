@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message NextFloorS2C {
+    int32 error = 1;
+    bool succeed = 2;
+    int32 floorNumber = 3;
+}

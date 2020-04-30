@@ -142,11 +142,18 @@ class GameOverS2C : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::google::protobuf::int32 error() const;
   void set_error(::google::protobuf::int32 value);
 
+  // bool succeed = 2;
+  void clear_succeed();
+  static const int kSucceedFieldNumber = 2;
+  bool succeed() const;
+  void set_succeed(bool value);
+
   // @@protoc_insertion_point(class_scope:GameOverS2C)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::int32 error_;
+  bool succeed_;
   mutable int _cached_size_;
   friend struct ::protobuf_GameOverS2C_2eproto::TableStruct;
   friend void ::protobuf_GameOverS2C_2eproto::InitDefaultsGameOverS2CImpl();
@@ -174,6 +181,20 @@ inline void GameOverS2C::set_error(::google::protobuf::int32 value) {
   
   error_ = value;
   // @@protoc_insertion_point(field_set:GameOverS2C.error)
+}
+
+// bool succeed = 2;
+inline void GameOverS2C::clear_succeed() {
+  succeed_ = false;
+}
+inline bool GameOverS2C::succeed() const {
+  // @@protoc_insertion_point(field_get:GameOverS2C.succeed)
+  return succeed_;
+}
+inline void GameOverS2C::set_succeed(bool value) {
+  
+  succeed_ = value;
+  // @@protoc_insertion_point(field_set:GameOverS2C.succeed)
 }
 
 #ifdef __GNUC__

@@ -137,10 +137,10 @@ class EnterRoomS2C : public ::google::protobuf::Message /* @@protoc_insertion_po
 
   // accessors -------------------------------------------------------
 
-  // .PlayerInfo playerInfo = 2;
+  // .PlayerInfo playerInfo = 3;
   bool has_playerinfo() const;
   void clear_playerinfo();
-  static const int kPlayerInfoFieldNumber = 2;
+  static const int kPlayerInfoFieldNumber = 3;
   const ::PlayerInfo& playerinfo() const;
   ::PlayerInfo* release_playerinfo();
   ::PlayerInfo* mutable_playerinfo();
@@ -152,12 +152,19 @@ class EnterRoomS2C : public ::google::protobuf::Message /* @@protoc_insertion_po
   ::google::protobuf::int32 error() const;
   void set_error(::google::protobuf::int32 value);
 
+  // bool succeed = 2;
+  void clear_succeed();
+  static const int kSucceedFieldNumber = 2;
+  bool succeed() const;
+  void set_succeed(bool value);
+
   // @@protoc_insertion_point(class_scope:EnterRoomS2C)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::PlayerInfo* playerinfo_;
   ::google::protobuf::int32 error_;
+  bool succeed_;
   mutable int _cached_size_;
   friend struct ::protobuf_EnterRoomS2C_2eproto::TableStruct;
   friend void ::protobuf_EnterRoomS2C_2eproto::InitDefaultsEnterRoomS2CImpl();
@@ -187,7 +194,21 @@ inline void EnterRoomS2C::set_error(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:EnterRoomS2C.error)
 }
 
-// .PlayerInfo playerInfo = 2;
+// bool succeed = 2;
+inline void EnterRoomS2C::clear_succeed() {
+  succeed_ = false;
+}
+inline bool EnterRoomS2C::succeed() const {
+  // @@protoc_insertion_point(field_get:EnterRoomS2C.succeed)
+  return succeed_;
+}
+inline void EnterRoomS2C::set_succeed(bool value) {
+  
+  succeed_ = value;
+  // @@protoc_insertion_point(field_set:EnterRoomS2C.succeed)
+}
+
+// .PlayerInfo playerInfo = 3;
 inline bool EnterRoomS2C::has_playerinfo() const {
   return this != internal_default_instance() && playerinfo_ != NULL;
 }

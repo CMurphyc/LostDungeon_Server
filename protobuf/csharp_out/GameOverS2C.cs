@@ -22,12 +22,12 @@ public static partial class GameOverS2CReflection {
   static GameOverS2CReflection() {
     byte[] descriptorData = global::System.Convert.FromBase64String(
         string.Concat(
-          "ChFHYW1lT3ZlclMyQy5wcm90byIcCgtHYW1lT3ZlclMyQxINCgVlcnJvchgB",
-          "IAEoBWIGcHJvdG8z"));
+          "ChFHYW1lT3ZlclMyQy5wcm90byItCgtHYW1lT3ZlclMyQxINCgVlcnJvchgB",
+          "IAEoBRIPCgdzdWNjZWVkGAIgASgIYgZwcm90bzM="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-          new pbr::GeneratedClrTypeInfo(typeof(global::GameOverS2C), global::GameOverS2C.Parser, new[]{ "Error" }, null, null, null)
+          new pbr::GeneratedClrTypeInfo(typeof(global::GameOverS2C), global::GameOverS2C.Parser, new[]{ "Error", "Succeed" }, null, null, null)
         }));
   }
   #endregion
@@ -60,6 +60,7 @@ public sealed partial class GameOverS2C : pb::IMessage<GameOverS2C> {
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   public GameOverS2C(GameOverS2C other) : this() {
     error_ = other.error_;
+    succeed_ = other.succeed_;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
 
@@ -79,6 +80,17 @@ public sealed partial class GameOverS2C : pb::IMessage<GameOverS2C> {
     }
   }
 
+  /// <summary>Field number for the "succeed" field.</summary>
+  public const int SucceedFieldNumber = 2;
+  private bool succeed_;
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  public bool Succeed {
+    get { return succeed_; }
+    set {
+      succeed_ = value;
+    }
+  }
+
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   public override bool Equals(object other) {
     return Equals(other as GameOverS2C);
@@ -93,6 +105,7 @@ public sealed partial class GameOverS2C : pb::IMessage<GameOverS2C> {
       return true;
     }
     if (Error != other.Error) return false;
+    if (Succeed != other.Succeed) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
 
@@ -100,6 +113,7 @@ public sealed partial class GameOverS2C : pb::IMessage<GameOverS2C> {
   public override int GetHashCode() {
     int hash = 1;
     if (Error != 0) hash ^= Error.GetHashCode();
+    if (Succeed != false) hash ^= Succeed.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
     }
@@ -117,6 +131,10 @@ public sealed partial class GameOverS2C : pb::IMessage<GameOverS2C> {
       output.WriteRawTag(8);
       output.WriteInt32(Error);
     }
+    if (Succeed != false) {
+      output.WriteRawTag(16);
+      output.WriteBool(Succeed);
+    }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(output);
     }
@@ -127,6 +145,9 @@ public sealed partial class GameOverS2C : pb::IMessage<GameOverS2C> {
     int size = 0;
     if (Error != 0) {
       size += 1 + pb::CodedOutputStream.ComputeInt32Size(Error);
+    }
+    if (Succeed != false) {
+      size += 1 + 1;
     }
     if (_unknownFields != null) {
       size += _unknownFields.CalculateSize();
@@ -142,6 +163,9 @@ public sealed partial class GameOverS2C : pb::IMessage<GameOverS2C> {
     if (other.Error != 0) {
       Error = other.Error;
     }
+    if (other.Succeed != false) {
+      Succeed = other.Succeed;
+    }
     _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
   }
 
@@ -155,6 +179,10 @@ public sealed partial class GameOverS2C : pb::IMessage<GameOverS2C> {
           break;
         case 8: {
           Error = input.ReadInt32();
+          break;
+        }
+        case 16: {
+          Succeed = input.ReadBool();
           break;
         }
       }

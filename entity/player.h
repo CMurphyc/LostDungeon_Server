@@ -6,40 +6,26 @@
 #include "../protobuf/BattleInput.pb.h"
 using namespace std;
 
-enum PlayerStatus {
-    //掉线状态
-    OFFLINE,
-    //在大厅内
-    IN_HALL,
-    //在房间内
-    IN_ROOM,
-    //在房间内准备了游戏
-    ROOM_READY,
-    //在加载场景
-    IS_LOADING,
-    //加载场景完成
-    SYNC_READY,
-    //在帧同步游戏
-    IS_SYNC
-};
 
 class Player {
-    private:
-        int uid_;
-        //该玩家客户端socket的fd
-        int client_fd_;
-        //玩家状态
-        PlayerStatus cur_status_;
-        //所在房间id
-        int room_id_;
-        string user_name_;
-        string password_;
-        //职业
-        Role role_;
-        //符文
-        int runes_;
-
     public:
+        enum PlayerStatus {
+            //掉线状态
+            OFFLINE,
+            //在大厅内
+            IN_HALL,
+            //在房间内
+            IN_ROOM,
+            //在房间内准备了游戏
+            ROOM_READY,
+            //在加载场景
+            IS_LOADING,
+            //加载场景完成
+            SYNC_READY,
+            //在帧同步游戏
+            IS_SYNC
+        };
+
         //在房间内的id
         int in_room_id_;
         //玩家当前帧操作
@@ -66,6 +52,23 @@ class Player {
         void ChangeStatus(PlayerStatus status);
         bool CheckChangeStatus(PlayerStatus status);
         void PlayerReady();
+        void NextFloor();
+
+    private:
+        int uid_;
+        //该玩家客户端socket的fd
+        int client_fd_;
+        //玩家状态
+        PlayerStatus cur_status_;
+        //所在房间id
+        int room_id_;
+        string user_name_;
+        string password_;
+        //职业
+        Role role_;
+        //符文
+        int runes_;
+
 
 };
 

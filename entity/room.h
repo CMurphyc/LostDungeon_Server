@@ -21,19 +21,12 @@
 using namespace std;
 
 class Room {
-    private:
-        //房间相关信息
-        int room_id_;
-        int room_owner_uid_;
-        int cur_room_size_;
-        int room_size_;
-        //帧同步有关数据
-        vector<BattleFrame> battle_frames;
-        int frame_count_;
-        int floor_count_;
     public:
-        //该房间游戏是否开始
-        bool is_start_;
+        enum RoomStatus {
+            IN_HALL,
+            IS_LOADING,
+            IS_SYNC
+        };
         //上次广播的时间
         struct timeval pre_tv_;
         //需要广播的所有玩家
@@ -56,8 +49,26 @@ class Room {
         int GetCurRoomSize();
         bool StartGame();
         bool StartSync();
+        bool NextFloor(int floor_number);
         void CollectPlayerInput(BattleFrame &battle_frame);
         bool CheckNeedToDeleteRoom();
+        RoomStatus GetRoomStatus();
+        void ChangeStatus(RoomStatus status);
+        bool CheckStatus(RoomStatus status);
+        bool CheckChangeStatus(RoomStatus status);
+        int GetFloorNumber();
+    private:
+        //房间相关信息
+        int room_id_;
+        int room_owner_uid_;
+        int cur_room_size_;
+        int room_size_;
+        RoomStatus cur_status_;
+        //帧同步有关数据
+        vector<BattleFrame> battle_frames;
+        int frame_count_;
+        int floor_count_;
+        
 };
 
 #endif

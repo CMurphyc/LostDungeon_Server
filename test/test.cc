@@ -64,7 +64,7 @@ unsigned int GenerateRandomNumber(int digit) {
 
 int main(int argc, char *argv[])
 {
-    int tot = 1000;
+    int tot = 1;
     char msg[10][1000];
     IntToBytes(1, msg[0]);
     IntToBytes(0, msg[0]+4);
@@ -75,11 +75,8 @@ int main(int argc, char *argv[])
         int sockfd, n;
         char str[3000];
 
-        // IntToBytes(1000, str + 4);
-        // memset(str, 0, sizeof(str));
-        // str[8] = 'x';
-        // str[9] = '1';
-        // str[10] = '0';
+        IntToBytes(99, str);
+        IntToBytes(100, str + 4);
 
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -90,7 +87,7 @@ int main(int argc, char *argv[])
 
         connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
-        write(sockfd, msg[0], 8);
+        write(sockfd, str, 108);
 
         n = read(sockfd, buf, MAXLINE);
         printf("Response from server:\n");

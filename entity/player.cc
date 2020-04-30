@@ -65,7 +65,7 @@ void Player::ResetPlayer() {
     runes_ = 0;
 }
 
-PlayerStatus Player::GetPlayerStatus() {
+Player::PlayerStatus Player::GetPlayerStatus() {
     return cur_status_;
 }
 
@@ -100,4 +100,13 @@ void Player::PlayerReady() {
     } else if (cur_status_ == ROOM_READY) {
         cur_status_ = IN_ROOM;
     }
+}
+
+void Player::NextFloor() {
+    if (cur_status_ != IS_SYNC) {
+        cur_status_ = OFFLINE;
+    }
+    cur_status_ = IS_LOADING;
+    cur_battle_input_.Clear();
+    cur_battle_input_.set_uid(uid_);
 }

@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message NextFloorC2S {
+    int32 floorNumber = 1;
+}

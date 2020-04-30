@@ -56,6 +56,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::EnterRoomS2C, error_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::EnterRoomS2C, succeed_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::EnterRoomS2C, playerinfo_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
@@ -88,12 +89,13 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\022EnterRoomS2C.proto\032\020PlayerInfo.proto\">"
-      "\n\014EnterRoomS2C\022\r\n\005error\030\001 \001(\005\022\037\n\nplayerI"
-      "nfo\030\002 \001(\0132\013.PlayerInfob\006proto3"
+      "\n\022EnterRoomS2C.proto\032\020PlayerInfo.proto\"O"
+      "\n\014EnterRoomS2C\022\r\n\005error\030\001 \001(\005\022\017\n\007succeed"
+      "\030\002 \001(\010\022\037\n\nplayerInfo\030\003 \001(\0132\013.PlayerInfob"
+      "\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 110);
+      descriptor, 127);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "EnterRoomS2C.proto", &protobuf_RegisterTypes);
   ::protobuf_PlayerInfo_2eproto::AddDescriptors();
@@ -125,6 +127,7 @@ void EnterRoomS2C::clear_playerinfo() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int EnterRoomS2C::kErrorFieldNumber;
+const int EnterRoomS2C::kSucceedFieldNumber;
 const int EnterRoomS2C::kPlayerInfoFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -146,14 +149,16 @@ EnterRoomS2C::EnterRoomS2C(const EnterRoomS2C& from)
   } else {
     playerinfo_ = NULL;
   }
-  error_ = from.error_;
+  ::memcpy(&error_, &from.error_,
+    static_cast<size_t>(reinterpret_cast<char*>(&succeed_) -
+    reinterpret_cast<char*>(&error_)) + sizeof(succeed_));
   // @@protoc_insertion_point(copy_constructor:EnterRoomS2C)
 }
 
 void EnterRoomS2C::SharedCtor() {
   ::memset(&playerinfo_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&error_) -
-      reinterpret_cast<char*>(&playerinfo_)) + sizeof(error_));
+      reinterpret_cast<char*>(&succeed_) -
+      reinterpret_cast<char*>(&playerinfo_)) + sizeof(succeed_));
   _cached_size_ = 0;
 }
 
@@ -199,7 +204,9 @@ void EnterRoomS2C::Clear() {
     delete playerinfo_;
   }
   playerinfo_ = NULL;
-  error_ = 0;
+  ::memset(&error_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&succeed_) -
+      reinterpret_cast<char*>(&error_)) + sizeof(succeed_));
   _internal_metadata_.Clear();
 }
 
@@ -227,10 +234,24 @@ bool EnterRoomS2C::MergePartialFromCodedStream(
         break;
       }
 
-      // .PlayerInfo playerInfo = 2;
+      // bool succeed = 2;
       case 2: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &succeed_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .PlayerInfo playerInfo = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
                input, mutable_playerinfo()));
         } else {
@@ -270,10 +291,15 @@ void EnterRoomS2C::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->error(), output);
   }
 
-  // .PlayerInfo playerInfo = 2;
+  // bool succeed = 2;
+  if (this->succeed() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->succeed(), output);
+  }
+
+  // .PlayerInfo playerInfo = 3;
   if (this->has_playerinfo()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *this->playerinfo_, output);
+      3, *this->playerinfo_, output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -295,11 +321,16 @@ void EnterRoomS2C::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->error(), target);
   }
 
-  // .PlayerInfo playerInfo = 2;
+  // bool succeed = 2;
+  if (this->succeed() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->succeed(), target);
+  }
+
+  // .PlayerInfo playerInfo = 3;
   if (this->has_playerinfo()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        2, *this->playerinfo_, deterministic, target);
+        3, *this->playerinfo_, deterministic, target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -319,7 +350,7 @@ size_t EnterRoomS2C::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // .PlayerInfo playerInfo = 2;
+  // .PlayerInfo playerInfo = 3;
   if (this->has_playerinfo()) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::MessageSize(
@@ -331,6 +362,11 @@ size_t EnterRoomS2C::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
         this->error());
+  }
+
+  // bool succeed = 2;
+  if (this->succeed() != 0) {
+    total_size += 1 + 1;
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -368,6 +404,9 @@ void EnterRoomS2C::MergeFrom(const EnterRoomS2C& from) {
   if (from.error() != 0) {
     set_error(from.error());
   }
+  if (from.succeed() != 0) {
+    set_succeed(from.succeed());
+  }
 }
 
 void EnterRoomS2C::CopyFrom(const ::google::protobuf::Message& from) {
@@ -396,6 +435,7 @@ void EnterRoomS2C::InternalSwap(EnterRoomS2C* other) {
   using std::swap;
   swap(playerinfo_, other->playerinfo_);
   swap(error_, other->error_);
+  swap(succeed_, other->succeed_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }
