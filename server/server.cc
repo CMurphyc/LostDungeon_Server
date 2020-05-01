@@ -714,6 +714,7 @@ void Server::GameOver() {
     }
     game_over_s2c.set_succeed(true);
     BroadCast(cur_room->player_set_, game_over_s2c, GAME_OVER_BROAD_CAST);
+    cur_room->Clear();
     cout << "room: " << cur_room->GetRoomId() << " game over" << endl;
 }
 

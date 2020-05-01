@@ -52,6 +52,7 @@ class Room {
         bool StartSync();
         bool NextFloor(int floor_number);
         bool GameOver();
+        void Clear();
         void CollectPlayerInput(BattleFrame &battle_frame);
         bool CheckNeedToDeleteRoom();
         RoomStatus GetRoomStatus();

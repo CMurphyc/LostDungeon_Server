@@ -166,14 +166,18 @@ bool Room::GameOver() {
             return false;
         }
     }
+    ChangeStatus(RoomStatus::IS_OVER);
+    return true;
+}
+
+void Room::Clear() {
+    set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end();) {
         Player *player = (*it);
         player_set_.erase(it++);
         player->ResetPlayer();
     }
     cur_room_size_ = 0;
-    ChangeStatus(RoomStatus::IS_OVER);
-    return true;
 }
 
 void Room::CollectPlayerInput(BattleFrame &battle_frame) {
