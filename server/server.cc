@@ -504,6 +504,7 @@ void Server::PlayerReady() {
             start_game_s2c.set_succeed(true);
             start_game_s2c.set_seed(GenerateRandomNumber(DEFAULT_RANDOM_DIGIT));
             start_game_s2c.set_floornumber(cur_room->GetFloorNumber());
+            start_game_s2c.set_maxfloornumber(MAX_FLOOR_NUMBER);
             set<Player *, PlayerCmp>::iterator it;
             PlayerInfo *player_info = nullptr;
             for (it = cur_room->player_set_.begin(); 

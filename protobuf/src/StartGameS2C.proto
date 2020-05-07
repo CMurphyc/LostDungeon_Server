@@ -6,5 +6,6 @@ message StartGameS2C {
     bool succeed = 2;
     int32 seed = 3;
     int32 floorNumber = 4;
-    repeated PlayerInfo playersInfo = 5;
+    int32 maxFloorNumber = 5;
+    repeated PlayerInfo playersInfo = 6;
 }

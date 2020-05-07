@@ -139,7 +139,7 @@ bool Room::NextFloor(int floor_number) {
     if (!CheckStatus(RoomStatus::IS_SYNC)) {
         return false;
     }
-    if (floor_count_ != floor_number - 1) {
+    if (floor_count_ != floor_number - 1 || floor_number > MAX_FLOOR_NUMBER) {
         return false;
     }
     ++floor_count_;

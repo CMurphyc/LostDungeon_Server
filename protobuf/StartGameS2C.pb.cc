@@ -59,6 +59,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, succeed_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, seed_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, floornumber_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, maxfloornumber_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::StartGameS2C, playersinfo_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
@@ -91,14 +92,14 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\022StartGameS2C.proto\032\020PlayerInfo.proto\"s"
-      "\n\014StartGameS2C\022\r\n\005error\030\001 \001(\005\022\017\n\007succeed"
-      "\030\002 \001(\010\022\014\n\004seed\030\003 \001(\005\022\023\n\013floorNumber\030\004 \001("
-      "\005\022 \n\013playersInfo\030\005 \003(\0132\013.PlayerInfob\006pro"
-      "to3"
+      "\n\022StartGameS2C.proto\032\020PlayerInfo.proto\"\213"
+      "\001\n\014StartGameS2C\022\r\n\005error\030\001 \001(\005\022\017\n\007succee"
+      "d\030\002 \001(\010\022\014\n\004seed\030\003 \001(\005\022\023\n\013floorNumber\030\004 \001"
+      "(\005\022\026\n\016maxFloorNumber\030\005 \001(\005\022 \n\013playersInf"
+      "o\030\006 \003(\0132\013.PlayerInfob\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 163);
+      descriptor, 188);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "StartGameS2C.proto", &protobuf_RegisterTypes);
   ::protobuf_PlayerInfo_2eproto::AddDescriptors();
@@ -128,6 +129,7 @@ const int StartGameS2C::kErrorFieldNumber;
 const int StartGameS2C::kSucceedFieldNumber;
 const int StartGameS2C::kSeedFieldNumber;
 const int StartGameS2C::kFloorNumberFieldNumber;
+const int StartGameS2C::kMaxFloorNumberFieldNumber;
 const int StartGameS2C::kPlayersInfoFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -146,15 +148,15 @@ StartGameS2C::StartGameS2C(const StartGameS2C& from)
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&error_, &from.error_,
-    static_cast<size_t>(reinterpret_cast<char*>(&floornumber_) -
-    reinterpret_cast<char*>(&error_)) + sizeof(floornumber_));
+    static_cast<size_t>(reinterpret_cast<char*>(&maxfloornumber_) -
+    reinterpret_cast<char*>(&error_)) + sizeof(maxfloornumber_));
   // @@protoc_insertion_point(copy_constructor:StartGameS2C)
 }
 
 void StartGameS2C::SharedCtor() {
   ::memset(&error_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&floornumber_) -
-      reinterpret_cast<char*>(&error_)) + sizeof(floornumber_));
+      reinterpret_cast<char*>(&maxfloornumber_) -
+      reinterpret_cast<char*>(&error_)) + sizeof(maxfloornumber_));
   _cached_size_ = 0;
 }
 
@@ -197,8 +199,8 @@ void StartGameS2C::Clear() {
 
   playersinfo_.Clear();
   ::memset(&error_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&floornumber_) -
-      reinterpret_cast<char*>(&error_)) + sizeof(floornumber_));
+      reinterpret_cast<char*>(&maxfloornumber_) -
+      reinterpret_cast<char*>(&error_)) + sizeof(maxfloornumber_));
   _internal_metadata_.Clear();
 }
 
@@ -268,10 +270,24 @@ bool StartGameS2C::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated .PlayerInfo playersInfo = 5;
+      // int32 maxFloorNumber = 5;
       case 5: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(40u /* 40 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &maxfloornumber_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated .PlayerInfo playersInfo = 6;
+      case 6: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(50u /* 50 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_playersinfo()));
         } else {
           goto handle_unusual;
@@ -325,11 +341,16 @@ void StartGameS2C::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->floornumber(), output);
   }
 
-  // repeated .PlayerInfo playersInfo = 5;
+  // int32 maxFloorNumber = 5;
+  if (this->maxfloornumber() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->maxfloornumber(), output);
+  }
+
+  // repeated .PlayerInfo playersInfo = 6;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->playersinfo_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->playersinfo(static_cast<int>(i)), output);
+      6, this->playersinfo(static_cast<int>(i)), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -366,12 +387,17 @@ void StartGameS2C::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->floornumber(), target);
   }
 
-  // repeated .PlayerInfo playersInfo = 5;
+  // int32 maxFloorNumber = 5;
+  if (this->maxfloornumber() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->maxfloornumber(), target);
+  }
+
+  // repeated .PlayerInfo playersInfo = 6;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->playersinfo_size()); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        5, this->playersinfo(static_cast<int>(i)), deterministic, target);
+        6, this->playersinfo(static_cast<int>(i)), deterministic, target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -391,7 +417,7 @@ size_t StartGameS2C::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // repeated .PlayerInfo playersInfo = 5;
+  // repeated .PlayerInfo playersInfo = 6;
   {
     unsigned int count = static_cast<unsigned int>(this->playersinfo_size());
     total_size += 1UL * count;
@@ -426,6 +452,13 @@ size_t StartGameS2C::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
         this->floornumber());
+  }
+
+  // int32 maxFloorNumber = 5;
+  if (this->maxfloornumber() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->maxfloornumber());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -470,6 +503,9 @@ void StartGameS2C::MergeFrom(const StartGameS2C& from) {
   if (from.floornumber() != 0) {
     set_floornumber(from.floornumber());
   }
+  if (from.maxfloornumber() != 0) {
+    set_maxfloornumber(from.maxfloornumber());
+  }
 }
 
 void StartGameS2C::CopyFrom(const ::google::protobuf::Message& from) {
@@ -501,6 +537,7 @@ void StartGameS2C::InternalSwap(StartGameS2C* other) {
   swap(succeed_, other->succeed_);
   swap(seed_, other->seed_);
   swap(floornumber_, other->floornumber_);
+  swap(maxfloornumber_, other->maxfloornumber_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }

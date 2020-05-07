@@ -137,10 +137,10 @@ class StartGameS2C : public ::google::protobuf::Message /* @@protoc_insertion_po
 
   // accessors -------------------------------------------------------
 
-  // repeated .PlayerInfo playersInfo = 5;
+  // repeated .PlayerInfo playersInfo = 6;
   int playersinfo_size() const;
   void clear_playersinfo();
-  static const int kPlayersInfoFieldNumber = 5;
+  static const int kPlayersInfoFieldNumber = 6;
   const ::PlayerInfo& playersinfo(int index) const;
   ::PlayerInfo* mutable_playersinfo(int index);
   ::PlayerInfo* add_playersinfo();
@@ -173,6 +173,12 @@ class StartGameS2C : public ::google::protobuf::Message /* @@protoc_insertion_po
   ::google::protobuf::int32 floornumber() const;
   void set_floornumber(::google::protobuf::int32 value);
 
+  // int32 maxFloorNumber = 5;
+  void clear_maxfloornumber();
+  static const int kMaxFloorNumberFieldNumber = 5;
+  ::google::protobuf::int32 maxfloornumber() const;
+  void set_maxfloornumber(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:StartGameS2C)
  private:
 
@@ -182,6 +188,7 @@ class StartGameS2C : public ::google::protobuf::Message /* @@protoc_insertion_po
   bool succeed_;
   ::google::protobuf::int32 seed_;
   ::google::protobuf::int32 floornumber_;
+  ::google::protobuf::int32 maxfloornumber_;
   mutable int _cached_size_;
   friend struct ::protobuf_StartGameS2C_2eproto::TableStruct;
   friend void ::protobuf_StartGameS2C_2eproto::InitDefaultsStartGameS2CImpl();
@@ -253,7 +260,21 @@ inline void StartGameS2C::set_floornumber(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:StartGameS2C.floorNumber)
 }
 
-// repeated .PlayerInfo playersInfo = 5;
+// int32 maxFloorNumber = 5;
+inline void StartGameS2C::clear_maxfloornumber() {
+  maxfloornumber_ = 0;
+}
+inline ::google::protobuf::int32 StartGameS2C::maxfloornumber() const {
+  // @@protoc_insertion_point(field_get:StartGameS2C.maxFloorNumber)
+  return maxfloornumber_;
+}
+inline void StartGameS2C::set_maxfloornumber(::google::protobuf::int32 value) {
+  
+  maxfloornumber_ = value;
+  // @@protoc_insertion_point(field_set:StartGameS2C.maxFloorNumber)
+}
+
+// repeated .PlayerInfo playersInfo = 6;
 inline int StartGameS2C::playersinfo_size() const {
   return playersinfo_.size();
 }
