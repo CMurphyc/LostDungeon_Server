@@ -92,6 +92,7 @@ class Server {
         void ChangeRunes();
         void LeaveRoom();
         void StartSync();
+        void StartSync(int room_id);
         void HandleBattleInput();
         void BroadCastBattleFrame();
         void NextFloor();

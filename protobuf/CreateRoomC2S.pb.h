@@ -29,6 +29,7 @@
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
+#include "RoomInfo.pb.h"
 // @@protoc_insertion_point(includes)
 
 namespace protobuf_CreateRoomC2S_2eproto {
@@ -142,11 +143,18 @@ class CreateRoomC2S : public ::google::protobuf::Message /* @@protoc_insertion_p
   ::google::protobuf::int32 roomsize() const;
   void set_roomsize(::google::protobuf::int32 value);
 
+  // .RoomType roomType = 2;
+  void clear_roomtype();
+  static const int kRoomTypeFieldNumber = 2;
+  ::RoomType roomtype() const;
+  void set_roomtype(::RoomType value);
+
   // @@protoc_insertion_point(class_scope:CreateRoomC2S)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::int32 roomsize_;
+  int roomtype_;
   mutable int _cached_size_;
   friend struct ::protobuf_CreateRoomC2S_2eproto::TableStruct;
   friend void ::protobuf_CreateRoomC2S_2eproto::InitDefaultsCreateRoomC2SImpl();
@@ -174,6 +182,20 @@ inline void CreateRoomC2S::set_roomsize(::google::protobuf::int32 value) {
   
   roomsize_ = value;
   // @@protoc_insertion_point(field_set:CreateRoomC2S.roomSize)
+}
+
+// .RoomType roomType = 2;
+inline void CreateRoomC2S::clear_roomtype() {
+  roomtype_ = 0;
+}
+inline ::RoomType CreateRoomC2S::roomtype() const {
+  // @@protoc_insertion_point(field_get:CreateRoomC2S.roomType)
+  return static_cast< ::RoomType >(roomtype_);
+}
+inline void CreateRoomC2S::set_roomtype(::RoomType value) {
+  
+  roomtype_ = value;
+  // @@protoc_insertion_point(field_set:CreateRoomC2S.roomType)
 }
 
 #ifdef __GNUC__

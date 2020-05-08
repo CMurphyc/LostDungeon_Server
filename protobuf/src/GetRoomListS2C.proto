@@ -1,10 +1,6 @@
 syntax = "proto3";
 
-message RoomInfo {
-	int32 roomid = 1;
-	int32 maxsize = 2;
-	int32 currentsize = 3;
-}
+import "RoomInfo.proto";
 
 message GetRoomListS2C {
     int32 error = 1;

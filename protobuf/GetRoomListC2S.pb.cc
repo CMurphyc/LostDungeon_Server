@@ -54,6 +54,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GetRoomListC2S, roomtype_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::GetRoomListC2S)},
@@ -85,13 +86,15 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\024GetRoomListC2S.proto\"\020\n\016GetRoomListC2S"
-      "b\006proto3"
+      "\n\024GetRoomListC2S.proto\032\016RoomInfo.proto\"-"
+      "\n\016GetRoomListC2S\022\033\n\010roomType\030\001 \001(\0162\t.Roo"
+      "mTypeb\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 48);
+      descriptor, 93);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "GetRoomListC2S.proto", &protobuf_RegisterTypes);
+  ::protobuf_RoomInfo_2eproto::AddDescriptors();
 }
 
 void AddDescriptors() {
@@ -111,6 +114,7 @@ struct StaticDescriptorInitializer {
 void GetRoomListC2S::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int GetRoomListC2S::kRoomTypeFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 GetRoomListC2S::GetRoomListC2S()
@@ -126,10 +130,12 @@ GetRoomListC2S::GetRoomListC2S(const GetRoomListC2S& from)
       _internal_metadata_(NULL),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  roomtype_ = from.roomtype_;
   // @@protoc_insertion_point(copy_constructor:GetRoomListC2S)
 }
 
 void GetRoomListC2S::SharedCtor() {
+  roomtype_ = 0;
   _cached_size_ = 0;
 }
 
@@ -170,6 +176,7 @@ void GetRoomListC2S::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  roomtype_ = 0;
   _internal_metadata_.Clear();
 }
 
@@ -182,12 +189,32 @@ bool GetRoomListC2S::MergePartialFromCodedStream(
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-  handle_unusual:
-    if (tag == 0) {
-      goto success;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // .RoomType roomType = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          set_roomtype(static_cast< ::RoomType >(value));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, _internal_metadata_.mutable_unknown_fields()));
+        break;
+      }
     }
-    DO_(::google::protobuf::internal::WireFormat::SkipField(
-          input, tag, _internal_metadata_.mutable_unknown_fields()));
   }
 success:
   // @@protoc_insertion_point(parse_success:GetRoomListC2S)
@@ -204,6 +231,12 @@ void GetRoomListC2S::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  // .RoomType roomType = 1;
+  if (this->roomtype() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      1, this->roomtype(), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -217,6 +250,12 @@ void GetRoomListC2S::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_to_array_start:GetRoomListC2S)
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
+
+  // .RoomType roomType = 1;
+  if (this->roomtype() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      1, this->roomtype(), target);
+  }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
@@ -235,6 +274,12 @@ size_t GetRoomListC2S::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
+  // .RoomType roomType = 1;
+  if (this->roomtype() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::EnumSize(this->roomtype());
+  }
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = cached_size;
@@ -264,6 +309,9 @@ void GetRoomListC2S::MergeFrom(const GetRoomListC2S& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from.roomtype() != 0) {
+    set_roomtype(from.roomtype());
+  }
 }
 
 void GetRoomListC2S::CopyFrom(const ::google::protobuf::Message& from) {
@@ -290,6 +338,7 @@ void GetRoomListC2S::Swap(GetRoomListC2S* other) {
 }
 void GetRoomListC2S::InternalSwap(GetRoomListC2S* other) {
   using std::swap;
+  swap(roomtype_, other->roomtype_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }

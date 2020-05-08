@@ -8,6 +8,7 @@
 #include "../entity/player.h"
 #include "../data/client_buff.h"
 #include "../config/global_define.h"
+#include "../protobuf/RoomInfo.pb.h"
 #include "../protobuf/LoginC2S.pb.h"
 #include "../protobuf/LoginS2C.pb.h"
 #include "../protobuf/RegisterC2S.pb.h"
@@ -60,6 +61,8 @@ class Room {
         bool CheckStatus(RoomStatus status);
         bool CheckChangeStatus(RoomStatus status);
         int GetFloorNumber();
+        int SetRoomType(RoomType room_type);
+        RoomType GetRoomType();
     private:
         //房间相关信息
         int room_id_;
@@ -67,6 +70,7 @@ class Room {
         int cur_room_size_;
         int room_size_;
         RoomStatus cur_status_;
+        RoomType room_type_;
         //帧同步有关数据
         vector<BattleFrame> battle_frames;
         int frame_count_;

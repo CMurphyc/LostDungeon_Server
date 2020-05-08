@@ -29,6 +29,7 @@
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
+#include "RoomInfo.pb.h"
 // @@protoc_insertion_point(includes)
 
 namespace protobuf_GetRoomListC2S_2eproto {
@@ -136,10 +137,17 @@ class GetRoomListC2S : public ::google::protobuf::Message /* @@protoc_insertion_
 
   // accessors -------------------------------------------------------
 
+  // .RoomType roomType = 1;
+  void clear_roomtype();
+  static const int kRoomTypeFieldNumber = 1;
+  ::RoomType roomtype() const;
+  void set_roomtype(::RoomType value);
+
   // @@protoc_insertion_point(class_scope:GetRoomListC2S)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  int roomtype_;
   mutable int _cached_size_;
   friend struct ::protobuf_GetRoomListC2S_2eproto::TableStruct;
   friend void ::protobuf_GetRoomListC2S_2eproto::InitDefaultsGetRoomListC2SImpl();
@@ -154,6 +162,20 @@ class GetRoomListC2S : public ::google::protobuf::Message /* @@protoc_insertion_
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
 // GetRoomListC2S
+
+// .RoomType roomType = 1;
+inline void GetRoomListC2S::clear_roomtype() {
+  roomtype_ = 0;
+}
+inline ::RoomType GetRoomListC2S::roomtype() const {
+  // @@protoc_insertion_point(field_get:GetRoomListC2S.roomType)
+  return static_cast< ::RoomType >(roomtype_);
+}
+inline void GetRoomListC2S::set_roomtype(::RoomType value) {
+  
+  roomtype_ = value;
+  // @@protoc_insertion_point(field_set:GetRoomListC2S.roomType)
+}
 
 #ifdef __GNUC__
   #pragma GCC diagnostic pop

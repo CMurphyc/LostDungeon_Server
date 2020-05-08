@@ -29,6 +29,7 @@
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
+#include "RoomInfo.pb.h"
 // @@protoc_insertion_point(includes)
 
 namespace protobuf_GetRoomListS2C_2eproto {
@@ -36,142 +37,23 @@ namespace protobuf_GetRoomListS2C_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[2];
+  static const ::google::protobuf::internal::ParseTable schema[1];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
 };
 void AddDescriptors();
-void InitDefaultsRoomInfoImpl();
-void InitDefaultsRoomInfo();
 void InitDefaultsGetRoomListS2CImpl();
 void InitDefaultsGetRoomListS2C();
 inline void InitDefaults() {
-  InitDefaultsRoomInfo();
   InitDefaultsGetRoomListS2C();
 }
 }  // namespace protobuf_GetRoomListS2C_2eproto
 class GetRoomListS2C;
 class GetRoomListS2CDefaultTypeInternal;
 extern GetRoomListS2CDefaultTypeInternal _GetRoomListS2C_default_instance_;
-class RoomInfo;
-class RoomInfoDefaultTypeInternal;
-extern RoomInfoDefaultTypeInternal _RoomInfo_default_instance_;
 
 // ===================================================================
-
-class RoomInfo : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:RoomInfo) */ {
- public:
-  RoomInfo();
-  virtual ~RoomInfo();
-
-  RoomInfo(const RoomInfo& from);
-
-  inline RoomInfo& operator=(const RoomInfo& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  RoomInfo(RoomInfo&& from) noexcept
-    : RoomInfo() {
-    *this = ::std::move(from);
-  }
-
-  inline RoomInfo& operator=(RoomInfo&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const RoomInfo& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const RoomInfo* internal_default_instance() {
-    return reinterpret_cast<const RoomInfo*>(
-               &_RoomInfo_default_instance_);
-  }
-  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    0;
-
-  void Swap(RoomInfo* other);
-  friend void swap(RoomInfo& a, RoomInfo& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline RoomInfo* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  RoomInfo* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const RoomInfo& from);
-  void MergeFrom(const RoomInfo& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(RoomInfo* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // int32 roomid = 1;
-  void clear_roomid();
-  static const int kRoomidFieldNumber = 1;
-  ::google::protobuf::int32 roomid() const;
-  void set_roomid(::google::protobuf::int32 value);
-
-  // int32 maxsize = 2;
-  void clear_maxsize();
-  static const int kMaxsizeFieldNumber = 2;
-  ::google::protobuf::int32 maxsize() const;
-  void set_maxsize(::google::protobuf::int32 value);
-
-  // int32 currentsize = 3;
-  void clear_currentsize();
-  static const int kCurrentsizeFieldNumber = 3;
-  ::google::protobuf::int32 currentsize() const;
-  void set_currentsize(::google::protobuf::int32 value);
-
-  // @@protoc_insertion_point(class_scope:RoomInfo)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::int32 roomid_;
-  ::google::protobuf::int32 maxsize_;
-  ::google::protobuf::int32 currentsize_;
-  mutable int _cached_size_;
-  friend struct ::protobuf_GetRoomListS2C_2eproto::TableStruct;
-  friend void ::protobuf_GetRoomListS2C_2eproto::InitDefaultsRoomInfoImpl();
-};
-// -------------------------------------------------------------------
 
 class GetRoomListS2C : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:GetRoomListS2C) */ {
  public:
@@ -208,7 +90,7 @@ class GetRoomListS2C : public ::google::protobuf::Message /* @@protoc_insertion_
                &_GetRoomListS2C_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    1;
+    0;
 
   void Swap(GetRoomListS2C* other);
   friend void swap(GetRoomListS2C& a, GetRoomListS2C& b) {
@@ -292,52 +174,6 @@ class GetRoomListS2C : public ::google::protobuf::Message /* @@protoc_insertion_
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// RoomInfo
-
-// int32 roomid = 1;
-inline void RoomInfo::clear_roomid() {
-  roomid_ = 0;
-}
-inline ::google::protobuf::int32 RoomInfo::roomid() const {
-  // @@protoc_insertion_point(field_get:RoomInfo.roomid)
-  return roomid_;
-}
-inline void RoomInfo::set_roomid(::google::protobuf::int32 value) {
-  
-  roomid_ = value;
-  // @@protoc_insertion_point(field_set:RoomInfo.roomid)
-}
-
-// int32 maxsize = 2;
-inline void RoomInfo::clear_maxsize() {
-  maxsize_ = 0;
-}
-inline ::google::protobuf::int32 RoomInfo::maxsize() const {
-  // @@protoc_insertion_point(field_get:RoomInfo.maxsize)
-  return maxsize_;
-}
-inline void RoomInfo::set_maxsize(::google::protobuf::int32 value) {
-  
-  maxsize_ = value;
-  // @@protoc_insertion_point(field_set:RoomInfo.maxsize)
-}
-
-// int32 currentsize = 3;
-inline void RoomInfo::clear_currentsize() {
-  currentsize_ = 0;
-}
-inline ::google::protobuf::int32 RoomInfo::currentsize() const {
-  // @@protoc_insertion_point(field_get:RoomInfo.currentsize)
-  return currentsize_;
-}
-inline void RoomInfo::set_currentsize(::google::protobuf::int32 value) {
-  
-  currentsize_ = value;
-  // @@protoc_insertion_point(field_set:RoomInfo.currentsize)
-}
-
-// -------------------------------------------------------------------
-
 // GetRoomListS2C
 
 // int32 error = 1;
@@ -357,9 +193,6 @@ inline void GetRoomListS2C::set_error(::google::protobuf::int32 value) {
 // repeated .RoomInfo roomsInfo = 2;
 inline int GetRoomListS2C::roomsinfo_size() const {
   return roomsinfo_.size();
-}
-inline void GetRoomListS2C::clear_roomsinfo() {
-  roomsinfo_.Clear();
 }
 inline const ::RoomInfo& GetRoomListS2C::roomsinfo(int index) const {
   // @@protoc_insertion_point(field_get:GetRoomListS2C.roomsInfo)
@@ -387,8 +220,6 @@ GetRoomListS2C::roomsinfo() const {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 
 // @@protoc_insertion_point(namespace_scope)
 

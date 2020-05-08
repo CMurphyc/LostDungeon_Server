@@ -1,5 +1,8 @@
 syntax="proto3";
 
+import "RoomInfo.proto";
+
 message CreateRoomC2S {
     int32 roomSize = 1;
+    RoomType roomType = 2;
 }

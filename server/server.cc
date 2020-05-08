@@ -13,7 +13,7 @@
 
 void Server::Recv() {
     if (fd_to_buff_.find(cur_fd_) == fd_to_buff_.end()) {
-        // printf("Recv fd do not exist!\n");
+        printf("Recv fd do not exist!\n");
         return ;
     }
     cur_recv_len_ = recv(cur_fd_,
@@ -89,6 +89,14 @@ void Server::ParseHead() {
 
 //处理接接收的包，并把用户缓冲区的数据拆包并解析，防止粘包
 void Server::HandleRecvPackage() {
+    if (cur_client_buff_->buff_ == nullptr) {
+        printf("socket: %d has nullptr buff in HandleRecvPackage\n", cur_fd_);
+        int close_ret = close(cur_fd_);
+        if (close_ret == -1) {
+            printf("close nullptr buff socket in HandleRecvPackage: %d error, errno = %d\n", cur_fd_, errno);
+        }
+        return ;
+    }
     cur_client_buff_->tail_ += cur_recv_len_;
     int l = cur_client_buff_->head_, r = cur_client_buff_->tail_;
     while (l < r && l < BUFF_SIZE && r <= BUFF_SIZE) {
@@ -398,21 +406,33 @@ void Server::CreateRoom() {
     Room *cur_room = id_to_room_[available_room_id_];
     cur_room->SetOwnerUid(cur_player->GetUid());
     cur_room->AddPlayer(cur_player);
+    cur_room->SetRoomType(create_room_c2s.roomtype());
     GetRoomInfo(cur_room->GetRoomId());
-    cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " create room : " << cur_room->GetRoomId() << " success" << endl;
+    cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " create room id: " << cur_room->GetRoomId() << ", room type: " << room_type_str[cur_room->GetRoomType()] << " success" << endl;
 }
 
 void Server::GetRoomList() {
+    GetRoomListC2S get_room_list_c2s = GetRoomListC2S();
     GetRoomListS2C get_room_list_s2c = GetRoomListS2C();
+    if (!Deserialize(get_room_list_c2s)) {
+        CloseClientFd(cur_fd_);
+        return ;
+    }
+    Player *player = nullptr;
     map<int, Room *>::iterator it;
     for (it = id_to_room_.begin(); it != id_to_room_.end(); ++it) {
-        if (!(*it).second->CheckStatus(Room::RoomStatus::IN_HALL)) {
+        if (!(*it).second->CheckStatus(Room::RoomStatus::IN_HALL) ||
+            (*it).second->GetRoomType() != get_room_list_c2s.roomtype()) {
             continue;
         }
         RoomInfo *room_info = get_room_list_s2c.add_roomsinfo();
         room_info->set_roomid((*it).first);
         room_info->set_currentsize((*it).second->GetCurRoomSize());
         room_info->set_maxsize((*it).second->GetRoomSize());
+        room_info->set_roomtype((*it).second->GetRoomType());
+        if (SecurelyGetPlayerByUid(player, (*it).second->GetOwnerUid())) {
+            room_info->set_owner(player->GetUserName());
+        }
     }
     Send(get_room_list_s2c, GET_ROOM_LIST_RET);
 }
@@ -626,11 +646,26 @@ void Server::StartSync() {
         cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start sync failed because player is not in game"<< endl;
         return ;
     }
+    cout << "room id : " << cur_room->GetRoomId() << " player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " loading success, now is waiting other player" << endl;
     cur_player->ChangeStatus(Player::PlayerStatus::SYNC_READY);
     if (cur_room->StartSync()) {
         start_sync_s2c.set_succeed(true);
         BroadCast(cur_room->player_set_, start_sync_s2c, START_SYNC_BROAD_CAST);
         cout << "room id : " << cur_room->GetRoomId() << " loading success, now start sync" << endl;
+    }
+}
+
+void Server::StartSync(int room_id) {
+    Room *cur_room = nullptr;
+    if (!SecurelyGetRoomById(cur_room, room_id)) {
+        return ;
+    }
+    cout << "room id: " << cur_room->GetRoomId() << " a player offline, now room want to re start sync" << endl;
+    StartSyncS2C start_sync_s2c = StartSyncS2C();
+    if (cur_room->StartSync()) {
+        start_sync_s2c.set_succeed(true);
+        BroadCast(cur_room->player_set_, start_sync_s2c, START_SYNC_BROAD_CAST);
+        cout << "room id : " << cur_room->GetRoomId() << " loading success and restart sync success" << endl;
     }
 }
 
@@ -701,11 +736,11 @@ void Server::NextFloor() {
 }
 
 void Server::GameOver() {
+    cout << "a room want to game over" << endl;
     Player *cur_player = nullptr;
     Room *cur_room = nullptr;
     if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
         !SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
-        CloseClientFd(cur_fd_);
         return ;
     }
     GameOverS2C game_over_s2c = GameOverS2C();
@@ -778,12 +813,14 @@ void Server::CloseClientFd(int fd) {
     if (SecurelyGetPlayerByFd(cur_player, fd)) {
         if (SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
             cur_room->RemovePlayer(cur_player);
-            if (cur_room->CheckStatus(Room::RoomStatus::IN_HALL)) {
-                if (cur_room->CheckNeedToDeleteRoom()) {
-                    DeleteRoom(cur_room->GetRoomId());
-                    cur_room = nullptr;
-                } else {
+            if (cur_room->CheckNeedToDeleteRoom()) {
+                DeleteRoom(cur_room->GetRoomId());
+                cur_room = nullptr;
+            } else {
+                if (cur_room->CheckStatus(Room::RoomStatus::IN_HALL)) {
                     GetRoomInfo(cur_room->GetRoomId());
+                } else if (cur_room->CheckStatus(Room::RoomStatus::IS_LOADING)) {
+                    StartSync(cur_room->GetRoomId());
                 }
             }
         }
@@ -925,14 +962,27 @@ void Server::Run() {
                 }
                 if (fd_to_buff_.find(client_fd) == fd_to_buff_.end()) {
                     fd_to_buff_.insert(
-                      pair<int, ClientBuff*>(client_fd, new ClientBuff(client_fd)));   
+                      pair<int, ClientBuff *>(client_fd, new ClientBuff(client_fd)));   
                 }
             } else {
                 cur_fd_ = fd;
                 if (fd_to_buff_.find(cur_fd_) == fd_to_buff_.end()) {
-                    return ;
+                    printf("socket: %d has no buff in run\n", cur_fd_);
+                    int close_ret = close(cur_fd_);
+                    if (close_ret == -1) {
+                        printf("close no buff socket in run: %d error, errno = %d\n", cur_fd_, errno);
+                    }
+                    continue;
                 }
                 cur_client_buff_ = fd_to_buff_[cur_fd_];
+                if (cur_client_buff_->buff_ == nullptr) {
+                    printf("socket: %d has nullptr buff in run\n", cur_fd_);
+                    int close_ret = close(cur_fd_);
+                    if (close_ret == -1) {
+                        printf("close nullptr buff socket in run: %d error, errno = %d\n", cur_fd_, errno);
+                    }
+                    continue;
+                }
                 Recv();
             }
         }

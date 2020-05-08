@@ -5,9 +5,6 @@
 #include "../other/tools.h"
 #include "../config/global_define.h"
 
-char log_type_str[][100] = {"normal", "error", "statistics"};
-char player_status_str[][100] = {"offline", "in hall", "in room", "room ready", "is loadying", "sync ready", "is sync"};
-
 unsigned int GenerateRandomNumber(int digit) {
     if (digit <= 0 || digit > 9) {
         return 0;

@@ -70,7 +70,7 @@
 #define MAX_RET_NUM 200
 
 #define BEFORE_SYNC_WAIT_TIME 5000000
-#define PER_FRAME_TIME 50000
+#define PER_FRAME_TIME 25000
 #define PORT 10000
 
 //错误信息

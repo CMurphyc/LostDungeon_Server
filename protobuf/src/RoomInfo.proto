@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+enum RoomType {
+    PVE = 0;
+    PVP = 1;
+}
+
+message RoomInfo {
+	int32 roomid = 1;
+	int32 maxsize = 2;
+	int32 currentsize = 3;
+    string owner = 4;
+    RoomType roomType = 5;
+}

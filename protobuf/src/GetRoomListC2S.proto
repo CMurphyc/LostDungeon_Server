@@ -1,6 +1,8 @@
 syntax = "proto3";
 
+import "RoomInfo.proto";
+
 message GetRoomListC2S {
-    
+    RoomType roomType = 1;
 }
 

@@ -228,3 +228,11 @@ bool Room::CheckChangeStatus(RoomStatus status) {
 int Room::GetFloorNumber() {
     return floor_count_;
 }
+
+int Room::SetRoomType(RoomType room_type) {
+    room_type_ = room_type;
+}
+        
+RoomType Room::GetRoomType() {
+    return room_type_;
+}
