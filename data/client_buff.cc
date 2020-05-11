@@ -9,7 +9,7 @@ ClientBuff::ClientBuff() {
     head_ = tail_ = 0;
     try {
         buff_ = new byte[BUFF_SIZE];
-    } catch (const std::bad_alloc &e) {
+    } catch (const std::exception &e) {
         printf("alloc in %s, %s", __FUNCTION__, e.what());
     }
 }
@@ -19,7 +19,7 @@ ClientBuff::ClientBuff(int _fd) {
     head_ = tail_ = 0;
     try {
         buff_ = new byte[BUFF_SIZE];
-    } catch (const std::bad_alloc &e) {
+    } catch (const std::exception &e) {
         printf("alloc in %s, %s", __FUNCTION__, e.what());
     }
 }
