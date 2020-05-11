@@ -1,0 +1,1 @@
+valgrind --tool=memcheck --leak-check=full --show-reachable=yes --max-stackframe=8000000 --log-file=./log/valgrind.log ./my_server 10001

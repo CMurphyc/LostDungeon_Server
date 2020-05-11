@@ -622,7 +622,7 @@ void Server::LeaveRoom() {
 void Server::DeleteRoom(int room_id) {
     Room *cur_room = nullptr;
     if (!SecurelyGetRoomById(cur_room, room_id)) {
-        cout << "delete room " << " error, because this room is not exist" << endl;
+        cout << "delete room: " << room_id << " error, because this room is not exist" << endl;
         return ;
     }
     cout << "room id : " << cur_room->GetRoomId() << " has been deleted" << endl;
@@ -963,7 +963,7 @@ void Server::Run() {
                 if (fd_to_buff_.find(client_fd) == fd_to_buff_.end()) {
                     fd_to_buff_.insert(
                       pair<int, ClientBuff *>(client_fd, new ClientBuff(client_fd)));   
-                }
+                }   // TODO: else delete buff, 然后new 新的
             } else {
                 cur_fd_ = fd;
                 if (fd_to_buff_.find(cur_fd_) == fd_to_buff_.end()) {

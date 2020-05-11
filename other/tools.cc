@@ -1,6 +1,7 @@
 #include <ctime>
 #include <signal.h>
 #include <unistd.h>
+#include <iostream>
 
 #include "../other/tools.h"
 #include "../config/global_define.h"
@@ -52,4 +53,9 @@ void InitDaemon(int8_t nochdir, int8_t noclose) {
 
 	signal(SIGTERM, SIG_IGN);
 
+}
+
+void NewHandler() {
+    std::cout << "out of memory!" << std::endl;
+    std::set_new_handler(nullptr);
 }

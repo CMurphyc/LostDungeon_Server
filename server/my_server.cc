@@ -7,6 +7,7 @@ int main(int argc, char *argv[])
         return 0;
     }
     int port = atoi(argv[1]);
+    set_new_handler(NewHandler);
     Server server = Server(port);
     server.Run();
     return 0;

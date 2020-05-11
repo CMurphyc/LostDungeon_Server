@@ -1,0 +1,13 @@
+==16628== Memcheck, a memory error detector
+==16628== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==16628== Using Valgrind-3.12.0 and LibVEX; rerun with -h for copyright info
+==16628== Command: ./my_server 10001
+==16628== Parent PID: 16627
+==16628== 
+==16628== Syscall param epoll_ctl(event) points to uninitialised byte(s)
+==16628==    at 0x5BDDE0A: epoll_ctl (in /usr/lib64/libc-2.17.so)
+==16628==    by 0x436305: Server::Run() (server.cc:922)
+==16628==    by 0x432439: main (my_server.cc:12)
+==16628==  Address 0xffeffff98 is on thread 1's stack
+==16628==  in frame #1, created by Server::Run() (server.cc:876)
+==16628== 
