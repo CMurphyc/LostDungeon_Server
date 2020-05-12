@@ -39,6 +39,10 @@
 #include "../protobuf/GetRoomListS2C.pb.h"
 #include "../protobuf/GetRoomInfoC2S.pb.h"
 #include "../protobuf/GetRoomInfoS2C.pb.h"
+#include "../protobuf/ChangeRunesC2S.pb.h"
+#include "../protobuf/ChangeRunesS2C.pb.h"
+#include "../protobuf/ChangeFactionC2S.pb.h"
+#include "../protobuf/ChangeFactionS2C.pb.h"
 using namespace std;
 
 class Server {
@@ -88,6 +92,7 @@ class Server {
         void PlayerReady();
         void ChangeRole();
         void ChangeRunes();
+        void ChangeFaction();
         void LeaveRoom();
         void StartSync();
         void StartSync(int room_id);

@@ -60,6 +60,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::PlayerInfo, role_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::PlayerInfo, isready_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::PlayerInfo, runes_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::PlayerInfo, faction_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::PlayerInfo)},
@@ -91,14 +92,14 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\020PlayerInfo.proto\"e\n\nPlayerInfo\022\020\n\010play"
+      "\n\020PlayerInfo.proto\"v\n\nPlayerInfo\022\020\n\010play"
       "erId\030\001 \001(\005\022\020\n\010userName\030\002 \001(\t\022\023\n\004role\030\003 \001"
       "(\0162\005.Role\022\017\n\007isReady\030\004 \001(\010\022\r\n\005runes\030\005 \001("
-      "\005*0\n\004Role\022\014\n\010ENGINEER\020\000\022\014\n\010GUARDIAN\020\001\022\014\n"
-      "\010MAGICIAN\020\002b\006proto3"
+      "\005\022\017\n\007faction\030\006 \001(\005*0\n\004Role\022\014\n\010ENGINEER\020\000"
+      "\022\014\n\010GUARDIAN\020\001\022\014\n\010MAGICIAN\020\002b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 179);
+      descriptor, 196);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "PlayerInfo.proto", &protobuf_RegisterTypes);
 }
@@ -140,6 +141,7 @@ const int PlayerInfo::kUserNameFieldNumber;
 const int PlayerInfo::kRoleFieldNumber;
 const int PlayerInfo::kIsReadyFieldNumber;
 const int PlayerInfo::kRunesFieldNumber;
+const int PlayerInfo::kFactionFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 PlayerInfo::PlayerInfo()
@@ -160,16 +162,16 @@ PlayerInfo::PlayerInfo(const PlayerInfo& from)
     username_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.username_);
   }
   ::memcpy(&playerid_, &from.playerid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&runes_) -
-    reinterpret_cast<char*>(&playerid_)) + sizeof(runes_));
+    static_cast<size_t>(reinterpret_cast<char*>(&faction_) -
+    reinterpret_cast<char*>(&playerid_)) + sizeof(faction_));
   // @@protoc_insertion_point(copy_constructor:PlayerInfo)
 }
 
 void PlayerInfo::SharedCtor() {
   username_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&playerid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&runes_) -
-      reinterpret_cast<char*>(&playerid_)) + sizeof(runes_));
+      reinterpret_cast<char*>(&faction_) -
+      reinterpret_cast<char*>(&playerid_)) + sizeof(faction_));
   _cached_size_ = 0;
 }
 
@@ -213,8 +215,8 @@ void PlayerInfo::Clear() {
 
   username_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&playerid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&runes_) -
-      reinterpret_cast<char*>(&playerid_)) + sizeof(runes_));
+      reinterpret_cast<char*>(&faction_) -
+      reinterpret_cast<char*>(&playerid_)) + sizeof(faction_));
   _internal_metadata_.Clear();
 }
 
@@ -301,6 +303,20 @@ bool PlayerInfo::MergePartialFromCodedStream(
         break;
       }
 
+      // int32 faction = 6;
+      case 6: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(48u /* 48 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &faction_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -358,6 +374,11 @@ void PlayerInfo::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->runes(), output);
   }
 
+  // int32 faction = 6;
+  if (this->faction() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->faction(), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -402,6 +423,11 @@ void PlayerInfo::SerializeWithCachedSizes(
   // int32 runes = 5;
   if (this->runes() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->runes(), target);
+  }
+
+  // int32 faction = 6;
+  if (this->faction() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->faction(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -453,6 +479,13 @@ size_t PlayerInfo::ByteSizeLong() const {
         this->runes());
   }
 
+  // int32 faction = 6;
+  if (this->faction() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->faction());
+  }
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = cached_size;
@@ -498,6 +531,9 @@ void PlayerInfo::MergeFrom(const PlayerInfo& from) {
   if (from.runes() != 0) {
     set_runes(from.runes());
   }
+  if (from.faction() != 0) {
+    set_faction(from.faction());
+  }
 }
 
 void PlayerInfo::CopyFrom(const ::google::protobuf::Message& from) {
@@ -529,6 +565,7 @@ void PlayerInfo::InternalSwap(PlayerInfo* other) {
   swap(role_, other->role_);
   swap(isready_, other->isready_);
   swap(runes_, other->runes_);
+  swap(faction_, other->faction_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }

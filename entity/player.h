@@ -38,7 +38,7 @@ class Player {
         int GetClientFd();
         void SetRoomId(int id);
         int GetRoomId();
-        int GetUid();
+        int GetUid() const;
         void SetUserName(string user_name);
         string GetUserName();
         void SetRole(Role role);
@@ -54,7 +54,7 @@ class Player {
         void PlayerReady();
         void NextFloor();
         void ChangeFaction(int faction);
-        void GetFaction();
+        int GetFaction() const;
 
     private:
         int uid_;
@@ -79,7 +79,10 @@ class Player {
 //玩家排序，按照其在房间中的编号
 struct PlayerCmp {
     bool operator () (const Player *left, const Player *right) const {
-        return left->in_room_id_ < right->in_room_id_;
+        if (left->GetFaction() == right->GetFaction()) {
+            return left->in_room_id_ < right->in_room_id_;
+        }
+        return left->GetFaction() < right->GetFaction();
     }
 };
 

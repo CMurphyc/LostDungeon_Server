@@ -107,10 +107,11 @@ void Server::HandleRecvPackage() {
         }
         ParseHead();
         // 包头数据有问题要把它close了
-        if (cur_recv_msg_type_ <= MIN_REQ_NUM || cur_recv_msg_type_ >= MAX_RET_NUM ||
+        if (cur_recv_msg_type_ <= MIN_REQ_NUM || cur_recv_msg_type_ > MAX_RET_NUM ||
             cur_recv_msg_len_ < 0 || cur_recv_msg_len_ > BUFF_SIZE) {
+            cout << "recv a out of range type package" << endl;
             CloseClientFd(cur_fd_);
-            break;
+            return ;
         }
         // 数据长度不足一个包
         if (buff_len < cur_recv_msg_len_ + HEAD_SIZE) {
@@ -147,6 +148,9 @@ void Server::HandleMsg() {
         case PLAYER_READY_REQ:
             PlayerReady();
             break;
+        case ROOM_CHANGE_FACTION_REQ:
+            ChangeFaction();
+            break;
         case CREATE_ROOM_REQ:
             CreateRoom();
             break;
@@ -164,6 +168,9 @@ void Server::HandleMsg() {
             break;
         case GAME_OVER_REQ:
             GameOver();
+            break;
+        case ROOM_CHANGE_RUNES_REQ:
+            ChangeRunes();
             break;
         default : 
             cout << "recv a none type package" << endl;
@@ -459,6 +466,7 @@ void Server::GetRoomInfo(int room_id) {
         player_info->set_isready(
             cur_player->CheckStatus(Player::PlayerStatus::ROOM_READY));
         player_info->set_runes(cur_player->GetRunes());
+        player_info->set_faction(cur_player->GetFaction());
     }
     get_room_info_s2c.set_roomownerid(cur_room->GetOwnerUid());
     get_room_info_s2c.set_roomid(cur_room->GetRoomId());
@@ -487,16 +495,20 @@ void Server::EnterRoom() {
     // }
     cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " want to enter room : " << enter_room_c2s.roomid() << endl;
     if (!cur_player->CheckStatus(Player::PlayerStatus::IN_HALL) ||
-        !SecurelyGetRoomById(cur_room, enter_room_c2s.roomid()) ||
-        !cur_room->CheckRoomSize() ||
-        !cur_room->CheckStatus(Room::RoomStatus::IN_HALL)) {
+        !SecurelyGetRoomById(cur_room, enter_room_c2s.roomid())) {
         enter_room_s2c.set_succeed(false);
         Send(enter_room_s2c, ENTER_ROOM_RET);
         cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " enter room : " << enter_room_c2s.roomid() << " failed" << endl;
         return ;
     }
-    cur_room->AddPlayer(cur_player);
-    GetRoomInfo(cur_room->GetRoomId());
+    if (cur_room->AddPlayer(cur_player)) {
+        GetRoomInfo(cur_room->GetRoomId());
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " enter room : " << cur_room->GetRoomId() << " success" << endl;
+    } else {
+        enter_room_s2c.set_succeed(false);
+        Send(enter_room_s2c, ENTER_ROOM_RET);
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " enter room : " << cur_room->GetRoomId() << " failed" << endl;
+    }
 }
 
 void Server::PlayerReady() {
@@ -565,31 +577,64 @@ void Server::ChangeRole() {
         cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change role failed, because player is not in room "<< endl;
         return ;
     }
+    if (change_role_c2s.role() == cur_player->GetRole()) {
+        return ;
+    }
     cur_player->SetRole(change_role_c2s.role());
     GetRoomInfo(cur_player->GetRoomId());
     cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change role : " << cur_player->GetRole() << endl;
 }
 
 void Server::ChangeRunes() {
-    // ChangeRoleS2C change_role_s2c = ChangeRoleS2C();
-    // ChangeRoleC2S change_role_c2s = ChangeRoleC2S();
-    // Player *cur_player = nullptr;
-    // Room *cur_room = nullptr;
-    // if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
-    //     !Deserialize(change_role_c2s)) {
-    //     CloseClientFd(cur_fd_);
-    //     return ;
-    // }
-    // if (!cur_player->is_in_room_ ||
-    //     !SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
-    //     change_role_s2c.set_error(NOT_IN_ROOM_ERROR);
-    //     Send(change_role_s2c, ROOM_CHANGE_ROLE_RET);
-    //     cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change role failed, because player is not in room "<< endl;
-    //     return ;
-    // }
-    // cur_player->SetRole(change_role_c2s.role());
-    // GetRoomInfo(cur_player->GetRoomId());
-    // cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change role : " << cur_player->GetRole() << endl;
+    ChangeRunesS2C change_runes_s2c = ChangeRunesS2C();
+    ChangeRunesC2S change_runes_c2s = ChangeRunesC2S();
+    Player *cur_player = nullptr;
+    Room *cur_room = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !Deserialize(change_runes_c2s)) {
+        CloseClientFd(cur_fd_);
+        return ;
+    }
+    if (!cur_player->CheckInRoom() ||
+        !SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
+        change_runes_s2c.set_error(NOT_IN_ROOM_ERROR);
+        Send(change_runes_s2c, ROOM_CHANGE_RUNES_RET);
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change runes failed, because player is not in room "<< endl;
+        return ;
+    }
+    cur_player->SetRunes(change_runes_c2s.runes());
+    GetRoomInfo(cur_player->GetRoomId());
+    cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change runes : " << cur_player->GetRunes() << endl;
+}
+
+void Server::ChangeFaction() {
+    ChangeFactionS2C change_faction_s2c = ChangeFactionS2C();
+    ChangeFactionC2S change_faction_c2s = ChangeFactionC2S();
+    Player *cur_player = nullptr;
+    Room *cur_room = nullptr;
+    if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
+        !Deserialize(change_faction_c2s)) {
+        CloseClientFd(cur_fd_);
+        return ;
+    }
+    if (change_faction_c2s.faction() == cur_player->GetFaction()) {
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change faction failed, because player is in this faction"<< endl;
+        return ;
+    }
+    if (!cur_player->CheckInRoom() ||
+        !SecurelyGetRoomById(cur_room, cur_player->GetRoomId()) ||
+        cur_room->GetRoomType() != PVP) {
+        change_faction_s2c.set_error(NOT_IN_ROOM_ERROR);
+        Send(change_faction_s2c, ROOM_CHANGE_FACTION_RET);
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change faction failed, because player is not in room "<< endl;
+        return ;
+    }
+    if (cur_room->ChangePlayerFaction(cur_player, change_faction_c2s.faction())) {
+        GetRoomInfo(cur_player->GetRoomId());
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change faction : " << cur_player->GetFaction() << endl;
+    } else {
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change faction : " << cur_player->GetFaction() << " failed" << endl;
+    }
 }
 
 void Server::LeaveRoom() {

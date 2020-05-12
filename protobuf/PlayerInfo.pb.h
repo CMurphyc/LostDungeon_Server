@@ -197,6 +197,12 @@ class PlayerInfo : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::google::protobuf::int32 runes() const;
   void set_runes(::google::protobuf::int32 value);
 
+  // int32 faction = 6;
+  void clear_faction();
+  static const int kFactionFieldNumber = 6;
+  ::google::protobuf::int32 faction() const;
+  void set_faction(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:PlayerInfo)
  private:
 
@@ -206,6 +212,7 @@ class PlayerInfo : public ::google::protobuf::Message /* @@protoc_insertion_poin
   int role_;
   bool isready_;
   ::google::protobuf::int32 runes_;
+  ::google::protobuf::int32 faction_;
   mutable int _cached_size_;
   friend struct ::protobuf_PlayerInfo_2eproto::TableStruct;
   friend void ::protobuf_PlayerInfo_2eproto::InitDefaultsPlayerInfoImpl();
@@ -328,6 +335,20 @@ inline void PlayerInfo::set_runes(::google::protobuf::int32 value) {
   
   runes_ = value;
   // @@protoc_insertion_point(field_set:PlayerInfo.runes)
+}
+
+// int32 faction = 6;
+inline void PlayerInfo::clear_faction() {
+  faction_ = 0;
+}
+inline ::google::protobuf::int32 PlayerInfo::faction() const {
+  // @@protoc_insertion_point(field_get:PlayerInfo.faction)
+  return faction_;
+}
+inline void PlayerInfo::set_faction(::google::protobuf::int32 value) {
+  
+  faction_ = value;
+  // @@protoc_insertion_point(field_set:PlayerInfo.faction)
 }
 
 #ifdef __GNUC__

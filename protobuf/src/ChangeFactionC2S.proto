@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message ChangeFactionC2S {
+    int32 faction = 1;
+}

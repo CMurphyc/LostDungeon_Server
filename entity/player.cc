@@ -29,7 +29,7 @@ int Player::GetRoomId() {
     return room_id_;
 }
 
-int Player::GetUid() {
+int Player::GetUid() const {
     return uid_;
 }
 
@@ -110,4 +110,12 @@ void Player::NextFloor() {
     cur_status_ = IS_LOADING;
     cur_battle_input_.Clear();
     cur_battle_input_.set_uid(uid_);
+}
+
+void Player::ChangeFaction(int faction) {
+    faction_ = faction;
+}
+
+int Player::GetFaction() const {
+    return faction_;
 }

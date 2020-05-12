@@ -12,4 +12,5 @@ message PlayerInfo {
     Role role = 3;
     bool isReady = 4;
     int32 runes = 5;
+    int32 faction = 6;
 }

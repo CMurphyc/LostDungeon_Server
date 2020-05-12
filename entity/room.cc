@@ -12,6 +12,7 @@ Room::Room(int id) {
     frame_count_ = 0;
     floor_count_ = 0;
     order_count_ = 0;
+    memset(faction_count_, 0, sizeof(faction_count_));
     pre_tv_ = {0, 0};
 }
 
@@ -27,6 +28,7 @@ Room::Room(int id, RoomType room_type) {
         break;
     case PVP:
         room_size_ = PVP_ROOM_SIZE;
+        break;
     default:
         room_size_ = 1;
         break;
@@ -34,6 +36,7 @@ Room::Room(int id, RoomType room_type) {
     frame_count_ = 0;
     floor_count_ = 0;
     order_count_ = 0;
+    memset(faction_count_, 0, sizeof(faction_count_));
     pre_tv_ = {0, 0};
 }
 
@@ -52,22 +55,33 @@ bool Room::CheckRoomSize() {
     return cur_room_size_ < room_size_;
 }
 
-void Room::AddPlayer(Player *player) {
-    if (player_set_.find(player) == player_set_.end()) {
-        ++cur_room_size_;
-        player->ChangeStatus(Player::PlayerStatus::IN_ROOM);
-        player->SetRole(ENGINEER);
-        player->SetRoomId(room_id_);
-        player->in_room_id_ = (++order_count_);
-        player_set_.insert(player);
-        cout << "player : " << player->GetUserName() << " enter room : " << room_id_ << " success" << endl;
+bool Room::AddPlayer(Player *player) {
+    if (player_set_.find(player) != player_set_.end()) {
+        return false;
     }
+    if (!CheckRoomSize() ||
+        !CheckStatus(Room::RoomStatus::IN_HALL)) {
+        return false;
+    }
+    if (GetRoomType() == PVP && !ChangePlayerFaction(player, GetLeastFaction())) {
+        return false;
+    }
+    ++cur_room_size_;
+    player->ChangeStatus(Player::PlayerStatus::IN_ROOM);
+    player->SetRole(ENGINEER);
+    player->SetRoomId(room_id_);
+    player->in_room_id_ = (++order_count_);
+    player_set_.insert(player);
+    return true;
 }
 
 void Room::LeaveRoom(Player *player) {
     if (player_set_.find(player) != player_set_.end()) {
         --cur_room_size_;
         player_set_.erase(player_set_.find(player));
+        if (room_type_ == PVP) {
+            DecreaseFactionCount(player->GetFaction());
+        }
         player->ResetPlayer();
         ResetOwner();
         cout << "player : " << player->GetUserName() << " leave room : " << room_id_ << " success" << endl;
@@ -78,6 +92,9 @@ void Room::RemovePlayer(Player *player) {
     if (player_set_.find(player) != player_set_.end()) {
         --cur_room_size_;
         player_set_.erase(player_set_.find(player));
+        if (room_type_ == PVP) {
+            DecreaseFactionCount(player->GetFaction());
+        }
         ResetOwner();
     }
 }
@@ -116,6 +133,13 @@ int Room::GetCurRoomSize() {
 bool Room::StartGame() {
     if (!CheckStatus(RoomStatus::IN_HALL)) {
         return false;
+    }
+    if (room_type_ == PVP) {
+        for (int i = 1; i < MAX_FLOOR_NUMBER; ++i) {
+            if (faction_count_[i] != faction_count_[i-1]) {
+                return false;
+            }
+        }
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
@@ -253,4 +277,48 @@ int Room::SetRoomType(RoomType room_type) {
         
 RoomType Room::GetRoomType() {
     return room_type_;
+}
+
+bool Room::ChangePlayerFaction(Player *player, int faction) {
+    if (room_type_ != PVP) {
+        return false;
+    }
+    set<Player*, PlayerCmp>::iterator player_it = player_set_.find(player);
+    if (player_it == player_set_.end()) {
+        return false;
+    }
+    if (faction < 0 || faction >= MAX_FACTION_NUM) {
+        return false;
+    }
+    if (faction_count_[faction] >= PVP_ONE_SIDE_PLAYER_NUM) {
+        return false;
+    }
+    player_set_.erase(player_it);
+    player->ChangeFaction(faction);
+    player->in_room_id_ = (++order_count_);
+    player_set_.insert(player);
+    ++faction_count_[faction];
+    return true;
+}
+
+int Room::GetLeastFaction() {
+    int faction = MAX_FACTION_NUM;
+    int num = PVP_ROOM_SIZE;
+    for (int i = 0; i < MAX_FACTION_NUM; ++i) {
+        if (faction_count_[i] < num) {
+            num = faction_count_[i];
+            faction = i;
+        }
+    }
+    return faction;
+}
+
+void Room::DecreaseFactionCount(int faction) {
+    if (faction < 0 || faction >= MAX_FACTION_NUM) {
+        return ;
+    }
+    if (faction_count_[faction] <= 0) {
+        return ;
+    }
+    --faction_count_[faction];
 }
