@@ -8,9 +8,32 @@ Room::Room(int id) {
     cur_status_ = RoomStatus::IN_HALL;
     room_id_ = id;
     cur_room_size_ = 0;
-    room_size_ = DEFAULT_ROOM_SIZE;
+    room_size_ = 1;
     frame_count_ = 0;
     floor_count_ = 0;
+    order_count_ = 0;
+    pre_tv_ = {0, 0};
+}
+
+Room::Room(int id, RoomType room_type) {
+    cur_status_ = RoomStatus::IN_HALL;
+    room_id_ = id;
+    cur_room_size_ = 0;
+    room_type_ = room_type;
+    switch (room_type_)
+    {
+    case PVE:
+        room_size_ = PVE_ROOM_SIZE;
+        break;
+    case PVP:
+        room_size_ = PVP_ROOM_SIZE;
+    default:
+        room_size_ = 1;
+        break;
+    }
+    frame_count_ = 0;
+    floor_count_ = 0;
+    order_count_ = 0;
     pre_tv_ = {0, 0};
 }
 
@@ -35,7 +58,7 @@ void Room::AddPlayer(Player *player) {
         player->ChangeStatus(Player::PlayerStatus::IN_ROOM);
         player->SetRole(ENGINEER);
         player->SetRoomId(room_id_);
-        player->in_room_id_ = cur_room_size_;
+        player->in_room_id_ = (++order_count_);
         player_set_.insert(player);
         cout << "player : " << player->GetUserName() << " enter room : " << room_id_ << " success" << endl;
     }
@@ -44,9 +67,9 @@ void Room::AddPlayer(Player *player) {
 void Room::LeaveRoom(Player *player) {
     if (player_set_.find(player) != player_set_.end()) {
         --cur_room_size_;
-        player->ResetPlayer();
         player_set_.erase(player_set_.find(player));
-        ReSortRoom();
+        player->ResetPlayer();
+        ResetOwner();
         cout << "player : " << player->GetUserName() << " leave room : " << room_id_ << " success" << endl;
     }
 }
@@ -55,18 +78,13 @@ void Room::RemovePlayer(Player *player) {
     if (player_set_.find(player) != player_set_.end()) {
         --cur_room_size_;
         player_set_.erase(player_set_.find(player));
-        ReSortRoom();
+        ResetOwner();
     }
 }
 
-void Room::ReSortRoom() {
+void Room::ResetOwner() {
     if (player_set_.size() == 0) {
         return ;
-    }
-    set<Player *, PlayerCmp>::iterator it;
-    int tot = 0;
-    for (it = player_set_.begin(); it != player_set_.end(); ++it) {
-        (*it)->in_room_id_ = (++tot);
     }
     SetOwnerUid((*player_set_.begin())->GetUid());
 }

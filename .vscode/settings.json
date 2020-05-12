@@ -58,7 +58,8 @@
         "thread": "cpp",
         "regex": "cpp",
         "typeindex": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "string": "cpp"
     },
     "remote.SSH.connectTimeout": 60,
     "editor.fontSize": 15

@@ -3,6 +3,7 @@
 
 #include <set>
 #include <vector>
+#include <algorithm>
 #include <sys/time.h>
 #include "../other/tools.h"
 #include "../entity/player.h"
@@ -37,12 +38,13 @@ class Room {
 
         Room();
         Room(int id);
+        Room(int id, RoomType room_type);
         ~Room();
         bool CheckRoomSize();
         void AddPlayer(Player *player);
         void LeaveRoom(Player *player);
         void RemovePlayer(Player *player);
-        void ReSortRoom();
+        void ResetOwner();
         void SetOwnerUid(int owner_uid);
         int GetOwnerUid();
         int GetRoomId() const;
@@ -63,6 +65,7 @@ class Room {
         int GetFloorNumber();
         int SetRoomType(RoomType room_type);
         RoomType GetRoomType();
+        bool CheckPlayerInRoom(Player *player);
     private:
         //房间相关信息
         int room_id_;
@@ -75,7 +78,7 @@ class Room {
         vector<BattleFrame> battle_frames;
         int frame_count_;
         int floor_count_;
-        
+        int order_count_;
 };
 
 #endif

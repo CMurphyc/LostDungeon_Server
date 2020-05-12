@@ -59,7 +59,8 @@ void Player::SetRunes(int runes) {
 
 void Player::ResetPlayer() {
     room_id_ = 0;
-    in_room_id_ = 99999;
+    faction_ = 0;
+    in_room_id_ = 0;
     cur_status_ = IN_HALL;
     role_ = ENGINEER;
     runes_ = 0;

@@ -57,14 +57,12 @@ class Server {
         int cur_recv_len_;
         int cur_recv_msg_len_, cur_recv_msg_type_;
         int cur_ret_msg_len_, cur_ret_msg_type_;
-        google::protobuf::Message *cur_ret_msg_;
         //用户缓冲区
         unordered_map<int, ClientBuff*>fd_to_buff_;
         //房间相关数据
         int available_room_id_;
         struct timeval cur_tv_;
         map<int, Room *>id_to_room_;
-        queue<Room *> room_sync_queue_;
         
         void Recv();
         void Send(google::protobuf::Message &message, int msg_type);

@@ -402,11 +402,11 @@ void Server::CreateRoom() {
         return ;
     }
     ++available_room_id_;
-    id_to_room_[available_room_id_] = new Room(available_room_id_);
+    id_to_room_[available_room_id_] = new Room(available_room_id_,
+                                               create_room_c2s.roomtype());
     Room *cur_room = id_to_room_[available_room_id_];
     cur_room->SetOwnerUid(cur_player->GetUid());
     cur_room->AddPlayer(cur_player);
-    cur_room->SetRoomType(create_room_c2s.roomtype());
     GetRoomInfo(cur_room->GetRoomId());
     cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " create room id: " << cur_room->GetRoomId() << ", room type: " << room_type_str[cur_room->GetRoomType()] << " success" << endl;
 }
@@ -538,7 +538,6 @@ void Server::PlayerReady() {
             BroadCast(cur_room->player_set_, start_game_s2c,
                       START_GAME_BROAD_CAST);
             UpdateTimeVal(cur_room->pre_tv_);
-            room_sync_queue_.push(cur_room);
             cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " start game success, now is loading..." << endl;
         } else {
             start_game_s2c.set_succeed(false);
@@ -690,23 +689,17 @@ void Server::HandleBattleInput() {
 */
 
 void Server::BroadCastBattleFrame() {
-    if (room_sync_queue_.empty()) {
-        return ;
-    }
-    while (CheckTimeInterval(room_sync_queue_.front()->pre_tv_, PER_FRAME_TIME)) {
-        Room *cur_room = room_sync_queue_.front();
-        room_sync_queue_.pop();
-        if (cur_room->CheckNeedToDeleteRoom()) {
-            DeleteRoom(cur_room->GetRoomId());
-            return ;
-        }
-        if (cur_room->CheckStatus(Room::RoomStatus::IS_SYNC)) {
+    map<int, Room *>::iterator it;
+    for (it = id_to_room_.begin(); it != id_to_room_.end();) {
+        Room *cur_room = (*it).second;
+        ++it;
+        if (cur_room->CheckStatus(Room::RoomStatus::IS_SYNC) &&
+            CheckTimeInterval(cur_room->pre_tv_, PER_FRAME_TIME)) {
+            UpdateTimeVal(cur_room->pre_tv_);
             BattleFrame battle_frame = BattleFrame();
             cur_room->CollectPlayerInput(battle_frame);
             BroadCast(cur_room->player_set_, battle_frame, BATTLE_FRAME_BROAD_CAST);
         }
-        UpdateTimeVal(cur_room->pre_tv_);
-        room_sync_queue_.push(cur_room);
     }
 }
 
@@ -736,7 +729,7 @@ void Server::NextFloor() {
 }
 
 void Server::GameOver() {
-    cout << "a room want to game over" << endl;
+    // cout << "a room want to game over" << endl;
     Player *cur_player = nullptr;
     Room *cur_room = nullptr;
     if (!SecurelyGetPlayerByFd(cur_player, cur_fd_) ||
@@ -779,21 +772,19 @@ void Server::BroadCast(set<Player *, PlayerCmp> &player_set,
     }
     set<Player *, PlayerCmp>::iterator it;
     for (it = player_set.begin(); it != player_set.end();) {
-        if ((*it)->CheckStatus(Player::PlayerStatus::OFFLINE)) {
-            ++it;
-            continue;
-        }
-        int send_ret = send((*it)->GetClientFd(), cur_ret_buff_, 
+        Player *cur_player = (*it);
+        ++it;
+        // if (cur_player->CheckStatus(Player::PlayerStatus::OFFLINE)) {
+        //     continue;
+        // }
+        int send_ret = send(cur_player->GetClientFd(), cur_ret_buff_, 
                             cur_ret_msg_len_ + HEAD_SIZE, 0);
         if (send_ret == -1) {
             printf("server broadcast to fd: %d error, errno = %d\n",
-                    (*it)->GetClientFd(), errno);
-            set<Player *, PlayerCmp>::iterator tmp = it;
-            ++it;
-            CloseClientFd((*tmp)->GetClientFd());
+                    cur_player->GetClientFd(), errno);
+            CloseClientFd(cur_player->GetClientFd());
             continue ;
         }
-        ++it;
     }
 }
 
@@ -828,8 +819,11 @@ void Server::CloseClientFd(int fd) {
         delete cur_player;
         fd_to_uid_.erase(fd_to_uid_.find(fd));
     }
-    delete fd_to_buff_[fd];
+    // 修改了一个可能出现野指针的地方
+    cur_client_buff_ = fd_to_buff_[fd];
     fd_to_buff_.erase(buff_it);
+    delete cur_client_buff_;
+    cur_client_buff_ = nullptr;
     int close_ret = close(fd);
     if (close_ret == -1) {
         printf("close socket: %d error, errno = %d\n", fd, errno);
@@ -844,7 +838,6 @@ Server::Server(int _port) {
     cur_client_buff_ = nullptr;
     cur_ret_buff_ = new byte[BUFF_SIZE];
     fd_to_buff_.clear();
-    cur_ret_msg_ = nullptr;
     available_room_id_ = 0;
     cur_fd_ = 0;
     cur_recv_len_ = 0;
@@ -962,7 +955,7 @@ void Server::Run() {
                 }
                 if (fd_to_buff_.find(client_fd) == fd_to_buff_.end()) {
                     fd_to_buff_.insert(
-                      pair<int, ClientBuff *>(client_fd, new ClientBuff(client_fd)));   
+                      pair<int, ClientBuff*>(client_fd, new ClientBuff(client_fd)));   
                 }   // TODO: else delete buff, 然后new 新的
             } else {
                 cur_fd_ = fd;

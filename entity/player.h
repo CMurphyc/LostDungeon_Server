@@ -53,6 +53,8 @@ class Player {
         bool CheckChangeStatus(PlayerStatus status);
         void PlayerReady();
         void NextFloor();
+        void ChangeFaction(int faction);
+        void GetFaction();
 
     private:
         int uid_;
@@ -68,6 +70,8 @@ class Player {
         Role role_;
         //符文
         int runes_;
+        //阵营
+        int faction_;
 
 
 };
