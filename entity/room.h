@@ -66,8 +66,10 @@ class Room {
         int SetRoomType(RoomType room_type);
         RoomType GetRoomType();
         bool ChangePlayerFaction(Player *player, int faction);
+        bool ChangeFaction(Player *player, int faction);
         int GetLeastFaction();
-        void DecreaseFactionCount(int faction);
+        bool DecreaseFactionCount(int faction);
+        bool IncreaseFactionCount(int faction);
 
     private:
         //房间相关信息

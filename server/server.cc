@@ -118,6 +118,9 @@ void Server::HandleRecvPackage() {
             break ;
         }
         HandleMsg();
+        if (cur_client_buff_ == nullptr) {
+            return ;
+        }
         l += (cur_recv_msg_len_ + HEAD_SIZE);
         cur_client_buff_->head_ = cur_client_buff_->head_ +
                                   cur_recv_msg_len_ + HEAD_SIZE;
@@ -412,10 +415,14 @@ void Server::CreateRoom() {
     id_to_room_[available_room_id_] = new Room(available_room_id_,
                                                create_room_c2s.roomtype());
     Room *cur_room = id_to_room_[available_room_id_];
-    cur_room->SetOwnerUid(cur_player->GetUid());
-    cur_room->AddPlayer(cur_player);
-    GetRoomInfo(cur_room->GetRoomId());
-    cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " create room id: " << cur_room->GetRoomId() << ", room type: " << room_type_str[cur_room->GetRoomType()] << " success" << endl;
+    if (cur_room->AddPlayer(cur_player)) {
+        cur_room->SetOwnerUid(cur_player->GetUid());
+        GetRoomInfo(cur_room->GetRoomId());
+        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " create room id: " << cur_room->GetRoomId() << ", room type: " << room_type_str[cur_room->GetRoomType()] << " success" << endl;
+    } else {
+        DeleteRoom(cur_room->GetRoomId());
+        cout << "room : " << cur_room->GetRoomId() << " add player id:" << cur_player->GetUid() << " failed" << endl;
+    }
 }
 
 void Server::GetRoomList() {
@@ -617,19 +624,14 @@ void Server::ChangeFaction() {
         CloseClientFd(cur_fd_);
         return ;
     }
-    if (change_faction_c2s.faction() == cur_player->GetFaction()) {
-        cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change faction failed, because player is in this faction"<< endl;
-        return ;
-    }
     if (!cur_player->CheckInRoom() ||
-        !SecurelyGetRoomById(cur_room, cur_player->GetRoomId()) ||
-        cur_room->GetRoomType() != PVP) {
+        !SecurelyGetRoomById(cur_room, cur_player->GetRoomId())) {
         change_faction_s2c.set_error(NOT_IN_ROOM_ERROR);
         Send(change_faction_s2c, ROOM_CHANGE_FACTION_RET);
         cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change faction failed, because player is not in room "<< endl;
         return ;
     }
-    if (cur_room->ChangePlayerFaction(cur_player, change_faction_c2s.faction())) {
+    if (cur_room->ChangeFaction(cur_player, change_faction_c2s.faction())) {
         GetRoomInfo(cur_player->GetRoomId());
         cout << "player : " << cur_player->GetUserName() << " fd : " << cur_player->GetClientFd() << " change faction : " << cur_player->GetFaction() << endl;
     } else {
