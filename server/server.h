@@ -19,6 +19,8 @@
 #include "../protobuf/BattleFrame.pb.h"
 #include "../protobuf/BattleInput.pb.h"
 #include "../protobuf/BattleInput.pb.h"
+#include "../protobuf/HeartbeatC2S.pb.h"
+#include "../protobuf/HeartbeatS2C.pb.h"
 #include "../protobuf/StartSyncC2S.pb.h"
 #include "../protobuf/StartSyncS2C.pb.h"
 #include "../protobuf/EnterRoomC2S.pb.h"
@@ -101,7 +103,6 @@ class Server {
         void NextFloor();
         void GameOver();
         void CloseClientFd(int fd);
-        void UpdateTimeVal(struct timeval &tv);
         bool CheckTimeInterval(struct timeval &pre_tv, int time_interval);
         bool CheckRoomLegality(int &cur_uid, Player *cur_player, Room *cur_room);
         void BroadCast(set<Player *, PlayerCmp> &player_set,
@@ -110,6 +111,8 @@ class Server {
         bool SecurelyGetPlayerByFd(Player *&player, int fd);
         bool SecurelyGetPlayerByUid(Player *&player, int uid);
         bool SecurelyGetRoomById(Room *&room, int room_id);
+        void Heartbeat();
+        void KickClient();
 
     public:
         Server(int _port);

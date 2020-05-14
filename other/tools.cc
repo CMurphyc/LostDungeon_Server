@@ -1,7 +1,10 @@
 #include <ctime>
+#include <cstring>
+#include <errno.h>
 #include <signal.h>
 #include <unistd.h>
 #include <iostream>
+#include <sys/time.h>
 
 #include "../other/tools.h"
 #include "../config/global_define.h"
@@ -58,4 +61,11 @@ void InitDaemon(int8_t nochdir, int8_t noclose) {
 void NewHandler() {
     std::cout << "out of memory!" << std::endl;
     std::set_new_handler(nullptr);
+}
+
+void UpdateTimeVal(struct timeval &tv) {
+    int ret = gettimeofday(&tv, NULL);
+    if (ret == -1) {
+        printf("UpdateTimeVal Error: errno = %d, (%s)\n", errno, strerror(errno));
+    }
 }

@@ -135,6 +135,9 @@ void Server::HandleMsg() {
         case BATTLE_INPUT_REQ:
             HandleBattleInput();
             break;
+        case HEARTBEAT_REQ:
+            Heartbeat();
+            break;
         case LOGIN_REQ:
             TmpLogin();
             //Login(cur_recv_msg_type_);
@@ -794,13 +797,6 @@ void Server::GameOver() {
     cout << "room: " << cur_room->GetRoomId() << " game over" << endl;
 }
 
-void Server::UpdateTimeVal(struct timeval &tv) {
-    int ret = gettimeofday(&tv, NULL);
-    if (ret == -1) {
-        printf("UpdateTimeVal Error: errno = %d, (%s)\n", errno, strerror(errno));
-    }
-}
-
 bool Server::CheckTimeInterval(struct timeval &pre_tv, int time_interval) {
     UpdateTimeVal(cur_tv_);
     if ((cur_tv_.tv_sec * 1000000 + cur_tv_.tv_usec) -
@@ -831,6 +827,30 @@ void Server::BroadCast(set<Player *, PlayerCmp> &player_set,
                     cur_player->GetClientFd(), errno);
             CloseClientFd(cur_player->GetClientFd());
             continue ;
+        }
+    }
+}
+
+void Server::Heartbeat() {
+    HeartbeatC2S heartbeat_c2s = HeartbeatC2S();
+    HeartbeatS2C heartbeat_s2c = HeartbeatS2C();
+    if (!Deserialize(heartbeat_c2s)) {
+        CloseClientFd(cur_fd_);
+        return ;
+    }
+    UpdateTimeVal(cur_client_buff_->heartbeat_tv_);
+    Send(heartbeat_s2c, HEARTBEAT_RET);
+}
+
+void Server::KickClient()
+{
+    unordered_map<int, ClientBuff*>::iterator it;
+    for (it = fd_to_buff_.begin(); it != fd_to_buff_.end();) {
+        ClientBuff *buff = (*it).second;
+        ++it;
+        if (CheckTimeInterval(buff->heartbeat_tv_, HEARTBEAT_WAIT_TIME)) {
+            cout << "client fd: " << buff->fd_ << " is offline" << endl;
+            CloseClientFd(buff->fd_);
         }
     }
 }
@@ -1027,6 +1047,7 @@ void Server::Run() {
             }
         }
         BroadCastBattleFrame();
+        KickClient();
     }
     delete[] events;
 }

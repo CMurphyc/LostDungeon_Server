@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message HeartbeatS2C {
+    int32 error = 1;
+}

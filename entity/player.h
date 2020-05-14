@@ -82,7 +82,7 @@ struct PlayerCmp {
         if (left->GetFaction() == right->GetFaction()) {
             return left->in_room_id_ < right->in_room_id_;
         }
-        return left->GetFaction() < right->GetFaction();
+        return left->GetFaction() > right->GetFaction();
     }
 };
 

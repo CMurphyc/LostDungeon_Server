@@ -18,4 +18,6 @@ void InitDaemon(int8_t nochdir, int8_t noclose);
 
 void NewHandler();
 
+void UpdateTimeVal(struct timeval &tv);
+
 #endif
