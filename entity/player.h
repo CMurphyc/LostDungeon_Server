@@ -30,6 +30,8 @@ class Player {
         int in_room_id_;
         //玩家当前帧操作
         BattleInput cur_battle_input_;
+        //加载时间
+        struct timeval load_tv_;
         
         Player();
         Player(int uid);

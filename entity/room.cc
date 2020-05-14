@@ -154,6 +154,7 @@ bool Room::StartGame() {
         }
     }
     for (it = player_set_.begin(); it != player_set_.end(); ++it) {
+        UpdateTimeVal((*it)->load_tv_);
         (*it)->ChangeStatus(Player::PlayerStatus::IS_LOADING);
     }
     floor_count_ = 1;

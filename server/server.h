@@ -113,6 +113,7 @@ class Server {
         bool SecurelyGetRoomById(Room *&room, int room_id);
         void Heartbeat();
         void KickClient();
+        void KickLoadTimeOut();
 
     public:
         Server(int _port);

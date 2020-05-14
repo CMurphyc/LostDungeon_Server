@@ -64,6 +64,7 @@ void Player::ResetPlayer() {
     cur_status_ = IN_HALL;
     role_ = ENGINEER;
     runes_ = 0;
+    load_tv_ = {0, 0};
 }
 
 Player::PlayerStatus Player::GetPlayerStatus() {

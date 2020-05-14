@@ -855,6 +855,20 @@ void Server::KickClient()
     }
 }
 
+void Server::KickLoadTimeOut() {
+    unordered_map<int, Player*>::iterator it;
+    for (it = uid_to_player_.begin(); it != uid_to_player_.end();) {
+        Player *player = (*it).second;
+        ++it;
+        if (player->CheckStatus(Player::PlayerStatus::IS_LOADING) &&
+            CheckTimeInterval(player->load_tv_, LOAD_WAIT_TIME)) {
+            cout << "player: " << player->GetUserName() << " load time out!" << endl;
+            StartSync(player->GetRoomId());
+            CloseClientFd(player->GetClientFd());
+        }
+    }
+}
+
 void Server::CloseClientFd(int fd) {
     unordered_map<int, ClientBuff *>::iterator buff_it = fd_to_buff_.find(fd);
     if (buff_it == fd_to_buff_.end()) {
@@ -1048,6 +1062,7 @@ void Server::Run() {
         }
         BroadCastBattleFrame();
         KickClient();
+        KickLoadTimeOut();
     }
     delete[] events;
 }
