@@ -99,7 +99,7 @@ class Server {
         void StartSync();
         void StartSync(int room_id);
         void HandleBattleInput();
-        void BroadCastBattleFrame();
+        void HandleRoomEvent();
         void NextFloor();
         void GameOver();
         void CloseClientFd(int fd);

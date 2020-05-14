@@ -1,3 +1,4 @@
+#include "../other/tools.h"
 #include "../entity/player.h"
 
 Player::Player() {
@@ -108,6 +109,7 @@ void Player::NextFloor() {
     if (cur_status_ != IS_SYNC) {
         cur_status_ = OFFLINE;
     }
+    UpdateTimeVal(load_tv_);
     cur_status_ = IS_LOADING;
     cur_battle_input_.Clear();
     cur_battle_input_.set_uid(uid_);

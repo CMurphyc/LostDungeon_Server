@@ -1,1 +1,46 @@
-bash: ./my_server: No such file or directory
+nohup: ignoring input
+new socket:5
+online client count: 1
+player : x10 fd : 5 login success
+player : x10 fd : 5 create room id: 1, room type: PVE success
+room count: 1
+player : x10 fd : 5 start game success, now is loading...
+room id : 1 player : x10 fd : 5 loading success, now is waiting other player
+room id : 1 loading success, now start sync
+room: 1 game over
+room id : 1 has been deleted
+player : x10 fd : 5 create room id: 2, room type: PVE success
+room count: 1
+player : x10 fd : 5 start game success, now is loading...
+room id : 2 player : x10 fd : 5 loading success, now is waiting other player
+room id : 2 loading success, now start sync
+room: 2 game over
+room id : 2 has been deleted
+player : x10 fd : 5 create room id: 3, room type: PVE success
+room count: 1
+player : x10 fd : 5 want to leave room : 3
+player : x10 leave room : 3 success
+room id : 3 has been deleted
+player : x10 fd : 5 create room id: 4, room type: PVE success
+room count: 1
+player : x10 fd : 5 want to leave room : 4
+player : x10 leave room : 4 success
+room id : 4 has been deleted
+room id: 5, faction 1 count++, count = 1
+player : x10 fd : 5 create room id: 5, room type: PVP success
+room count: 1
+player : x10 fd : 5 want to leave room : 5
+room id: 5, faction 1 count--, count = 0
+player : x10 leave room : 5 success
+room id : 5 has been deleted
+room id: 6, faction 1 count++, count = 1
+player : x10 fd : 5 create room id: 6, room type: PVP success
+room count: 1
+room id: 6 faction compare, faction_count_[0]->0, faction_count_[1]->1
+player : x10 fd : 5 start loading failed
+room id: 6 faction compare, faction_count_[0]->0, faction_count_[1]->1
+player : x10 fd : 5 start loading failed
+player : x10 fd : 5 want to leave room : 6
+room id: 6, faction 1 count--, count = 0
+player : x10 leave room : 6 success
+room id : 6 has been deleted
