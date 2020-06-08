@@ -1,1 +1,1 @@
-# 迷失地牢服务器项目说明
+All rights reserved by lin5597
